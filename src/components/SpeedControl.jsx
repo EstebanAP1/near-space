@@ -12,7 +12,7 @@ function SpeedControl() {
   return (
     <div className='speed-control'>
       <label>
-        Factor de Velocidad: {speedFactor.toFixed(1)} días/s
+        Velocity: {speedFactor.toFixed(1)} day/s
         <input
           type='range'
           min='0.1'

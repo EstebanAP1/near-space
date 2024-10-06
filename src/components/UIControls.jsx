@@ -10,11 +10,11 @@ function UIControls() {
     <div className='ui-controls'>
       <label>
         <input type='checkbox' checked={showLabels} onChange={toggleLabels} />
-        Mostrar Etiquetas
+        Show/hide labels
       </label>
       <label>
         <input type='checkbox' checked={showOrbits} onChange={toggleOrbits} />
-        Mostrar Órbitas
+        Show/hide orbits
       </label>
     </div>
   )
