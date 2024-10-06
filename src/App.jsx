@@ -1,21 +1,19 @@
-import { Physics } from '@react-three/cannon'
 import { Canvas } from '@react-three/fiber'
 import { CameraControls, Stats } from '@react-three/drei'
 import { Sun } from './components/Sun'
 import { Planets } from './components/Planets'
 import Starfield from './components/Starfield'
+
 function App() {
   return (
     <>
-      <Canvas camera={{ position: [0, 0, 128] }}>
+      <Canvas camera={{ position: [0, 0, 50] }} dpr={[1, 2]}>
         <Stats />
-        <ambientLight color={'#fff'} intensity={1} />
+        <ambientLight intensity={0.3} />
         <CameraControls makeDefault />
-        <Starfield numStars={10000} />
-        <group>
-          <Sun />
-          <Planets />
-        </group>
+        <Starfield />
+        <Sun />
+        <Planets />
       </Canvas>
     </>
   )

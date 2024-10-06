@@ -31,8 +31,8 @@ const textures = {
 
 function loadTextures(textures) {
   Object.entries(textures).forEach(key => {
-    // key.wrapS = key.wrapT = RepeatWrapping
-    // key.magFilter = NearestFilter
+    key.wrapS = key.wrapT = RepeatWrapping
+    key.magFilter = NearestFilter
   })
 
   return textures
@@ -51,4 +51,4 @@ export const {
   uranusTexture,
   venusTexture,
   starTexture,
-} = textures
+} = loadTextures(textures)

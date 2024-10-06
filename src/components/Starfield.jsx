@@ -1,56 +1,96 @@
 import React, { useMemo } from 'react'
-import { Points, PointMaterial } from '@react-three/drei'
 import * as THREE from 'three'
-import { starTexture } from '../images/textures'
 
-export default function Starfield({ numStars = 600, size = 5 } = {}) {
-  // Utilizamos useMemo para optimizar la creación de puntos
-  const [positions, colors] = useMemo(() => {
-    const verts = []
-    const cols = []
-    for (let i = 0; i < numStars; i += 1) {
-      const radius = Math.random() * 600 + 600
-      const u = Math.random()
-      const v = Math.random()
-      const theta = 2 * Math.PI * u
-      const phi = Math.acos(2 * v - 1)
-      let x = radius * Math.sin(phi) * Math.cos(theta)
-      let y = radius * Math.sin(phi) * Math.sin(theta)
-      let z = radius * Math.cos(phi)
+export default function Starfield({ numStars = 5000, size = 1 }) {
+  // Generar posiciones, colores y tamaños de las estrellas
+  const [positions, colors, sizes] = useMemo(() => {
+    const positions = []
+    const colors = []
+    const sizes = []
+    const color = new THREE.Color()
 
-      verts.push(x, y, z)
+    for (let i = 0; i < numStars; i++) {
+      // Distribución esférica uniforme
+      const theta = THREE.MathUtils.randFloatSpread(360)
+      const phi = THREE.MathUtils.randFloatSpread(360)
+      const distance = THREE.MathUtils.randFloat(600, 1000)
 
-      const hue = 0.6 // Color por defecto, puede variar según la distancia
-      const color = new THREE.Color().setHSL(hue, 0.2, Math.random())
-      cols.push(color.r, color.g, color.b)
+      const x = distance * Math.sin(theta) * Math.cos(phi)
+      const y = distance * Math.sin(theta) * Math.sin(phi)
+      const z = distance * Math.cos(theta)
+
+      positions.push(x, y, z)
+
+      // Variaciones de color
+      color.setHSL(
+        THREE.MathUtils.randFloat(0.5, 0.7), // Matiz
+        0.7, // Saturación
+        THREE.MathUtils.randFloat(0.8, 1) // Luminosidad
+      )
+      colors.push(color.r, color.g, color.b)
+
+      // Tamaños aleatorios
+      sizes.push(THREE.MathUtils.randFloat(0.5, 1.5))
     }
-    return [new Float32Array(verts), new Float32Array(cols)]
+
+    return [
+      new Float32Array(positions),
+      new Float32Array(colors),
+      new Float32Array(sizes),
+    ]
   }, [numStars])
 
   return (
-    <Points positions={positions}>
-      {/* Material del punto */}
-      <PointMaterial
-        transparent
-        size={size}
-        vertexColors
-        map={starTexture}
-        sizeAttenuation={true}
-      />
+    <points>
       <bufferGeometry>
         <bufferAttribute
           attach='attributes-position'
           array={positions}
-          count={positions.length / 3}
           itemSize={3}
+          count={positions.length / 3}
         />
         <bufferAttribute
           attach='attributes-color'
           array={colors}
-          count={colors.length / 3}
           itemSize={3}
+          count={colors.length / 3}
+        />
+        <bufferAttribute
+          attach='attributes-size'
+          array={sizes}
+          itemSize={1}
+          count={sizes.length}
         />
       </bufferGeometry>
-    </Points>
+      <shaderMaterial
+        vertexColors
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        uniforms={{
+          size: { value: size },
+          scale: { value: window.innerHeight / 2 },
+        }}
+        vertexShader={`
+          attribute float size;
+          varying vec3 vColor;
+
+          void main() {
+            vColor = color;
+
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * (size * 1.5) * (300.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `}
+        fragmentShader={`
+          varying vec3 vColor;
+
+          void main() {
+            gl_FragColor = vec4(vColor, 1.0);
+          }
+        `}
+      />
+    </points>
   )
 }
