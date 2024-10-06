@@ -1,50 +1,45 @@
-import { useRef, useMemo } from 'react'
-import { useSpace } from '../hooks/useSpace'
+// src/components/Sun.js
+
+import React, { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { SUN } from '../data/spaceData'
 
 export function Sun() {
   const sunRef = useRef()
-  const lightRef = useRef()
 
-  const {
-    sun: { radius, texture, rotationSpeed, rotationAxis },
-  } = useSpace()
-
-  const scaledRotation = useMemo(() => rotationSpeed * 800, [rotationSpeed])
+  // Vector del eje de rotación
   const rotationAxisVector = useMemo(
-    () => new THREE.Vector3(...rotationAxis).normalize(),
-    [rotationAxis]
+    () => new THREE.Vector3(...SUN.rotationAxis).normalize(),
+    []
   )
 
   useFrame((state, delta) => {
     if (sunRef.current) {
-      sunRef.current.rotateOnAxis(rotationAxisVector, delta * scaledRotation)
-    }
-
-    if (lightRef.current) {
-      lightRef.current.position.set(50, 50, 50)
-      lightRef.current.target.position.set(0, 0, 0)
+      sunRef.current.rotateOnAxis(rotationAxisVector, delta * SUN.rotationSpeed)
     }
   })
 
   return (
     <>
-      <mesh ref={sunRef} position={[0, 0, 0]}>
-        <sphereGeometry args={[radius, 16, 16]} />
+      {/* Mesh del Sol */}
+      <mesh ref={sunRef} position={[0, 0, 0]} castShadow>
+        <sphereGeometry args={[SUN.radius, 64, 64]} />
         <meshStandardMaterial
-          map={texture}
-          emissive={0xffff99}
+          map={SUN.texture}
+          emissive={new THREE.Color(0xffff99)}
           emissiveIntensity={0.02}
         />
       </mesh>
 
-      <directionalLight
-        ref={lightRef}
-        color={0xffffff}
+      {/* Luz puntual del Sol */}
+      <pointLight
+        position={[0, 0, 0]}
         intensity={2}
-        position={[50, 50, 50]}
+        distance={1000}
         castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
       />
     </>
   )

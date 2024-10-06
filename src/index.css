@@ -18,5 +18,98 @@ body,
 }
 
 body {
+  margin: 0;
+  overflow: hidden;
   background: #000;
+}
+
+.ui-controls,
+.speed-control,
+.file-upload {
+  position: absolute;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.ui-controls {
+  top: 10px;
+}
+
+.speed-control {
+  top: 80px;
+}
+
+.file-upload {
+  top: 150px;
+}
+
+.ui-controls label,
+.speed-control label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* src/components/UIControls.css */
+.ui-controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  font-family: Arial, sans-serif;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.ui-controls label {
+  display: block;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.ui-controls input {
+  margin-right: 5px;
+}
+
+/* src/styles.css (continued) */
+
+.speed-control {
+  position: absolute;
+  top: 100px;
+  left: 10px;
+  color: white;
+  font-family: Arial, sans-serif;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.speed-control label {
+  display: block;
+  cursor: pointer;
+}
+
+.speed-control input {
+  width: 100%;
+  margin-top: 5px;
+}
+/* src/components/FileUpload.css */
+
+.file-upload {
+  position: absolute;
+  top: 150px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.file-upload input {
+  color: white;
 }
