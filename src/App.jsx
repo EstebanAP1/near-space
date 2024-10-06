@@ -11,6 +11,7 @@ import { useNEOs } from './hooks/useNEOs'
 import { NEOs } from './components/NEOs'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { CameraController } from './components/CameraController'
+import { PlanetDetails } from './components/PlanetDetails'
 
 function App() {
   useNEOs()
@@ -37,6 +38,7 @@ function App() {
 
       <UIControls />
       <SpeedControl />
+      <PlanetDetails />
     </>
   )
 }

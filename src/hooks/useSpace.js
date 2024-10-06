@@ -3,6 +3,10 @@ import { create } from 'zustand'
 export const useSpace = create((set, get) => ({
   focusedPlanet: null,
   setFocusedPlanet: planet => {
+    if (!planet) {
+      set({ focusedPlanet: null })
+      return
+    }
     if (get().focusedPlanet?.name !== planet?.name) {
       set({ focusedPlanet: planet })
     }

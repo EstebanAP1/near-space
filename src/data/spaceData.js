@@ -13,6 +13,7 @@ import {
 export const SUN = {
   name: 'Sun',
   radius: 696340 / 174085,
+  realRadius: 696340,
   texture: sunTexture,
   rotationSpeed: 360 / (25.4 * 86400),
   rotationAxis: [0, 1, 0],
@@ -22,6 +23,7 @@ export const PLANETS = [
   {
     name: 'Mercury',
     radius: 2440 / 20000,
+    realRadius: 2440,
     texture: mercuryTexture,
     rotationSpeed: 360 / (58.6 * 86400),
     rotationAxis: [0, 0.999, 0.044],
@@ -37,6 +39,7 @@ export const PLANETS = [
   {
     name: 'Venus',
     radius: 6052 / 20000,
+    realRadius: 6052,
     texture: venusTexture,
     rotationSpeed: -(360 / (243 * 86400)),
     rotationAxis: [0, 0.999, 0.027],
@@ -52,6 +55,7 @@ export const PLANETS = [
   {
     name: 'Earth',
     radius: 6371 / 20000,
+    realRadius: 6371,
     texture: earthTexture,
     rotationSpeed: 360 / 86400,
     rotationAxis: [0, 0.917, 0.398],
@@ -67,6 +71,7 @@ export const PLANETS = [
   {
     name: 'Mars',
     radius: 3390 / 20000,
+    realRadius: 3390,
     texture: marsTexture,
     rotationSpeed: 360 / (24.6 * 3600),
     rotationAxis: [0, 0.883, 0.469],
@@ -82,6 +87,7 @@ export const PLANETS = [
   {
     name: 'Jupiter',
     radius: 69911 / 20000,
+    realRadius: 69911,
     texture: jupiterTexture,
     rotationSpeed: 360 / (9.9 * 3600),
     rotationAxis: [0, 0.995, 0.105],
@@ -97,6 +103,7 @@ export const PLANETS = [
   {
     name: 'Saturn',
     radius: 58232 / 20000,
+    realRadius: 58232,
     texture: saturnTexture,
     rotationSpeed: 360 / (10.7 * 3600),
     rotationAxis: [0, 0.868, 0.496],
@@ -112,6 +119,7 @@ export const PLANETS = [
   {
     name: 'Uranus',
     radius: 25362 / 20000,
+    realRadius: 25362,
     texture: uranusTexture,
     rotationSpeed: -(360 / (17.2 * 3600)),
     rotationAxis: [0, 0.174, 0.985],
@@ -127,6 +135,7 @@ export const PLANETS = [
   {
     name: 'Neptune',
     radius: 24622 / 20000,
+    realRadius: 24622,
     texture: neptuneTexture,
     rotationSpeed: 360 / (16.1 * 3600),
     rotationAxis: [0, 0.921, 0.389],
