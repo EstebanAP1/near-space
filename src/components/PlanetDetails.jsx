@@ -49,10 +49,12 @@ export function PlanetDetails() {
           <p>
             Rotation Period: <span>{actualPlanet?.rotationPeriod}</span>
           </p>
-          <p>
-            Average Distance of Sun:{' '}
-            <span>{actualPlanet?.averageDistanceOfSun}</span>
-          </p>
+          {!!actualPlanet?.averageDistanceOfSun && (
+            <p>
+              Average Distance of Sun:{' '}
+              <span>{actualPlanet?.averageDistanceOfSun}</span>
+            </p>
+          )}
           <p>
             Radius: <span>{actualPlanet?.radius}</span>
           </p>
@@ -62,9 +64,11 @@ export function PlanetDetails() {
           <p>
             Surface: <span>{actualPlanet?.surface}</span>
           </p>
-          <p>
-            Moons: <span>{actualPlanet?.moons}</span>
-          </p>
+          {!!actualPlanet?.moons && (
+            <p>
+              Moons: <span>{actualPlanet?.moons}</span>
+            </p>
+          )}
         </div>
       </header>
     </section>
