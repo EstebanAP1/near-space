@@ -50,11 +50,11 @@ body {
 }
 
 .ui-controls {
-  top: 10px;
+  top: 100px;
 }
 
 .speed-control {
-  top: 100px;
+  top: 10px;
   max-width: 350px;
 }
 

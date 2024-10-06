@@ -36,8 +36,8 @@ function App() {
         </EffectComposer>
       </Canvas>
 
-      <UIControls />
       <SpeedControl />
+      <UIControls />
       <PlanetDetails />
     </>
   )
