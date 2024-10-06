@@ -1,5 +1,3 @@
-// src/components/SpeedControl.js
-
 import React from 'react'
 import { useSpace } from '../hooks/useSpace'
 
@@ -18,7 +16,7 @@ function SpeedControl() {
         <input
           type='range'
           min='0.1'
-          max='100' // Aumentar el máximo para permitir velocidades mayores
+          max='100'
           step='0.1'
           value={speedFactor}
           onChange={handleChange}

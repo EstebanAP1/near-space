@@ -1,5 +1,3 @@
-// src/components/FileUpload.js
-
 import React from 'react'
 import Papa from 'papaparse'
 import { useSpace } from '../hooks/useSpace'

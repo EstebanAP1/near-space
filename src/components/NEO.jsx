@@ -1,5 +1,3 @@
-// src/components/NEO.js
-
 import React, { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -23,7 +21,6 @@ export function NEO({ data }) {
     },
   } = data
 
-  // Convert parameters to numbers
   const semiMajorAxis = parseFloat(semi_major_axis)
   const e = parseFloat(eccentricity)
   const i = parseFloat(inclination)
@@ -35,14 +32,14 @@ export function NEO({ data }) {
   const deg2rad = deg => (deg * Math.PI) / 180
 
   const rotationAxisVector = useMemo(
-    () => new THREE.Vector3(0, 1, 0).normalize(), // Simple rotation axis
+    () => new THREE.Vector3(0, 1, 0).normalize(),
     []
   )
 
-  const AU = 20 // Scale factor
+  const AU = 20
 
   useFrame(({ clock }, delta) => {
-    const elapsedDays = (clock.getElapsedTime() * speedFactor) / 86400 // Convert seconds to days
+    const elapsedDays = (clock.getElapsedTime() * speedFactor) / 86400
     const M = deg2rad(M0) + (2 * Math.PI * elapsedDays) / orbitalPeriod
 
     const E = solveKepler(M, e)
@@ -76,7 +73,7 @@ export function NEO({ data }) {
 
     if (neoRef.current) {
       neoRef.current.position.set(x * AU, y * AU, z * AU)
-      neoRef.current.rotateOnAxis(rotationAxisVector, delta * 10) // Arbitrary rotation speed
+      neoRef.current.rotateOnAxis(rotationAxisVector, delta * 10)
     }
   })
 
