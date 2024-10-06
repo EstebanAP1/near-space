@@ -1,11 +1,10 @@
-import React, { useRef, useMemo, useState } from 'react'
+import React, { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useSpace } from '../hooks/useSpace'
-import { Line, Text } from '@react-three/drei'
+import { Line } from '@react-three/drei'
 
 export function Planet({
-  name,
   radius,
   positionX,
   texture,
@@ -98,21 +97,11 @@ export function Planet({
 
   return (
     <>
-      {/* Órbita del planeta */}
       <Line points={orbitPoints} color='gray' lineWidth={0.5} dashed={false} />
-
-      {/* Malla del Planeta */}
-      <mesh
-        ref={planetRef}
-        castShadow
-        receiveShadow
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}>
+      <mesh ref={planetRef} castShadow receiveShadow>
         <sphereGeometry args={[radius, 16, 16]} />
         <meshStandardMaterial map={texture} />
       </mesh>
-
-      {/* Anillo de contorno */}
       <mesh ref={outlineRef}>
         <ringGeometry args={ringRadius} />
         <meshBasicMaterial
@@ -122,11 +111,8 @@ export function Planet({
           opacity={0.6}
         />
       </mesh>
-
-      <mesh
-        ref={planeRef}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}>
+      {/* TODO: Use plane to show planet's info on click */}
+      <mesh ref={planeRef}>
         <circleGeometry args={[ringRadius[0], 16]} />
         <meshBasicMaterial color='white' transparent opacity={0} />
       </mesh>

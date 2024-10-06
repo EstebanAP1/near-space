@@ -1,3 +1,5 @@
+// src/textures.js
+
 import { NearestFilter, RepeatWrapping, TextureLoader } from 'three'
 import {
   background,
@@ -14,25 +16,27 @@ import {
   star,
 } from './images'
 
+const textureLoader = new TextureLoader()
+
 const textures = {
-  backgroundTexture: new TextureLoader().load(background),
-  sunTexture: new TextureLoader().load(sun),
-  earthTexture: new TextureLoader().load(earth),
-  jupiterTexture: new TextureLoader().load(jupiter),
-  marsTexture: new TextureLoader().load(mars),
-  mercuryTexture: new TextureLoader().load(mercury),
-  moonTexture: new TextureLoader().load(moon),
-  neptuneTexture: new TextureLoader().load(neptune),
-  saturnTexture: new TextureLoader().load(saturn),
-  uranusTexture: new TextureLoader().load(uranus),
-  venusTexture: new TextureLoader().load(venus),
-  starTexture: new TextureLoader().load(star),
+  backgroundTexture: textureLoader.load(background),
+  sunTexture: textureLoader.load(sun),
+  earthTexture: textureLoader.load(earth),
+  jupiterTexture: textureLoader.load(jupiter),
+  marsTexture: textureLoader.load(mars),
+  mercuryTexture: textureLoader.load(mercury),
+  moonTexture: textureLoader.load(moon),
+  neptuneTexture: textureLoader.load(neptune),
+  saturnTexture: textureLoader.load(saturn),
+  uranusTexture: textureLoader.load(uranus),
+  venusTexture: textureLoader.load(venus),
+  starTexture: textureLoader.load(star),
 }
 
 function loadTextures(textures) {
-  Object.entries(textures).forEach(key => {
-    key.wrapS = key.wrapT = RepeatWrapping
-    key.magFilter = NearestFilter
+  Object.entries(textures).forEach(([key, texture]) => {
+    texture.wrapS = texture.wrapT = RepeatWrapping
+    texture.magFilter = NearestFilter
   })
 
   return textures

@@ -2,7 +2,6 @@ import React, { useMemo } from 'react'
 import * as THREE from 'three'
 
 export default function Starfield({ numStars = 5000, size = 1 }) {
-  // Generar posiciones, colores y tamaños de las estrellas
   const [positions, colors, sizes] = useMemo(() => {
     const positions = []
     const colors = []
@@ -10,7 +9,6 @@ export default function Starfield({ numStars = 5000, size = 1 }) {
     const color = new THREE.Color()
 
     for (let i = 0; i < numStars; i++) {
-      // Distribución esférica uniforme
       const theta = THREE.MathUtils.randFloatSpread(360)
       const phi = THREE.MathUtils.randFloatSpread(360)
       const distance = THREE.MathUtils.randFloat(600, 1000)
@@ -21,15 +19,13 @@ export default function Starfield({ numStars = 5000, size = 1 }) {
 
       positions.push(x, y, z)
 
-      // Variaciones de color
       color.setHSL(
-        THREE.MathUtils.randFloat(0.5, 0.7), // Matiz
-        0.7, // Saturación
-        THREE.MathUtils.randFloat(0.8, 1) // Luminosidad
+        THREE.MathUtils.randFloat(0.5, 0.7),
+        0.7,
+        THREE.MathUtils.randFloat(0.8, 1)
       )
       colors.push(color.r, color.g, color.b)
 
-      // Tamaños aleatorios
       sizes.push(THREE.MathUtils.randFloat(0.5, 1.5))
     }
 
