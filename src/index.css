@@ -84,8 +84,10 @@ body {
 
 .planet-details {
   position: absolute;
+  scrollbar-width: thin;
   top: 10px;
   left: 10px;
+  max-height: 97dvh;
   width: 30%;
   padding: 1em 2.2em;
   color: white;
@@ -99,6 +101,7 @@ body {
   padding: 1em 2.2em;
   border-radius: 8px;
   color: white;
+  overflow-y: auto;
 }
 
 .planet-details .close-button {
