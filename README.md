@@ -28,7 +28,6 @@ This project relies on the following specific versions of libraries:
     "@react-three/drei": "9.114.0",
     "@react-three/fiber": "8.17.9",
     "@react-three/postprocessing": "2.16.3",
-    "papaparse": "5.4.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "three": "0.169.0",
@@ -44,7 +43,6 @@ This project relies on the following specific versions of libraries:
 - **React-Three-Fiber** (`8.17.9`): A React renderer for Three.js, facilitating easy integration of 3D elements within a React environment.
 - **React-Three-Drei** (`9.114.0`): A collection of useful helpers and abstractions for `react-three-fiber`.
 - **React-Three-Postprocessing** (`2.16.3`): For adding post-processing effects such as bloom, SSAO, etc., to enhance the visual quality.
-- **PapaParse** (`5.4.1`): A fast CSV parser used in case we need to handle large datasets for space objects.
 - **Zustand** (`5.0.0-rc.2`): A lightweight state management library used to handle the app’s global state, such as camera modes and selected objects.
 
 ### Optional Development Tools

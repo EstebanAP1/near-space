@@ -8,7 +8,7 @@ export function useNEOs() {
   useEffect(() => {
     const fetchNEOs = async () => {
       try {
-        const apiKey = 'rO97n6FG1blK8LREbF63TVxrgsyhPuQvt7f8YDIb'
+        const apiKey = import.meta.env.VITE_NASA_API_KEY
         const response = await fetch(
           `https://api.nasa.gov/neo/rest/v1/neo/browse?api_key=${apiKey}`
         )

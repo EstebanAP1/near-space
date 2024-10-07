@@ -5,13 +5,13 @@ import { Planets } from './components/Planets'
 import Starfield from './components/Starfield'
 import UIControls from './components/UIControls'
 import SpeedControl from './components/SpeedControl'
-import { useNEOs } from './hooks/useNEOs'
 import { NEOs } from './components/NEOs'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { CameraController } from './components/CameraController'
 import { PlanetDetails } from './components/PlanetDetails'
 import CameraControls from './components/CameraControls'
 import { Icon } from './components/Icon'
+import { useNEOs } from './hooks/useNEOs'
 
 function App() {
   useNEOs()
@@ -20,7 +20,7 @@ function App() {
     <>
       <Icon />
       <Canvas
-        camera={{ position: [0, 0, 1000], near: 0.1, far: 10000 }}
+        camera={{ position: [6, -65, 28], near: 0.1, far: 10000 }}
         dpr={[1, 2]}>
         <ambientLight intensity={1} />
         <pointLight position={[0, 0, 0]} intensity={2} />

@@ -18,11 +18,17 @@ export function Planet(planetData) {
     rotationSpeed,
     rotationAxis,
     semiMajorAxis,
+    semiMajorAxisRate,
     eccentricity,
+    eccentricityRate,
     inclination,
+    inclinationRate,
     longitudeOfAscendingNode,
+    longitudeOfAscendingNodeRate,
     argumentOfPeriapsis,
+    argumentOfPeriapsisRate,
     meanAnomalyAtEpoch,
+    meanAnomalyAtEpochRate,
     orbitalPeriod,
     orbitColor,
   } = planetData
@@ -33,6 +39,7 @@ export function Planet(planetData) {
     speedFactor,
     showLabels,
     showOrbits,
+    AU,
   } = useSpace()
 
   const thisFocusedPlanet = useMemo(
@@ -44,49 +51,117 @@ export function Planet(planetData) {
 
   const deg2rad = deg => (deg * Math.PI) / 180
 
-  const iRad = useMemo(() => deg2rad(inclination), [inclination])
-  const ORad = useMemo(
-    () => deg2rad(longitudeOfAscendingNode),
-    [longitudeOfAscendingNode]
+  const n = useMemo(
+    () => (2 * Math.PI) / (orbitalPeriod * 86400),
+    [orbitalPeriod]
   )
-  const ωRad = useMemo(
-    () => deg2rad(argumentOfPeriapsis),
-    [argumentOfPeriapsis]
-  )
-  const M0Rad = useMemo(() => deg2rad(meanAnomalyAtEpoch), [meanAnomalyAtEpoch])
-
-  const n = useMemo(() => (2 * Math.PI) / orbitalPeriod, [orbitalPeriod])
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(...rotationAxis).normalize(),
     [rotationAxis]
   )
 
-  const AU = 20
+  const [keplerElements, setKeplerElements] = useState({
+    semiMajorAxis,
+    eccentricity,
+    inclination,
+    longitudeOfAscendingNode,
+    argumentOfPeriapsis,
+    meanAnomalyAtEpoch,
+  })
+
+  useEffect(() => {
+    setKeplerElements({
+      semiMajorAxis,
+      eccentricity,
+      inclination,
+      longitudeOfAscendingNode,
+      argumentOfPeriapsis,
+      meanAnomalyAtEpoch,
+    })
+  }, [
+    semiMajorAxis,
+    eccentricity,
+    inclination,
+    longitudeOfAscendingNode,
+    argumentOfPeriapsis,
+    meanAnomalyAtEpoch,
+  ])
+
+  const updatedElementsRad = useMemo(() => {
+    return {
+      iRad: deg2rad(keplerElements.inclination),
+      ORad: deg2rad(keplerElements.longitudeOfAscendingNode),
+      ωRad: deg2rad(keplerElements.argumentOfPeriapsis),
+      M0Rad: deg2rad(keplerElements.meanAnomalyAtEpoch),
+    }
+  }, [
+    keplerElements.inclination,
+    keplerElements.longitudeOfAscendingNode,
+    keplerElements.argumentOfPeriapsis,
+    keplerElements.meanAnomalyAtEpoch,
+  ])
+
+  const orbitType = useMemo(() => {
+    const e = keplerElements.eccentricity
+    if (e < 1) return 'elliptical'
+    if (e === 1) return 'parabolic'
+    return 'hyperbolic'
+  }, [keplerElements.eccentricity])
 
   const orbitPoints = useMemo(() => {
     const points = []
     const segments = 128
-    for (let idx = 0; idx <= segments; idx++) {
-      const M = (2 * Math.PI * idx) / segments
-      const E = solveKepler(M, eccentricity)
-      const ν =
-        2 *
-        Math.atan2(
-          Math.sqrt(1 + eccentricity) * Math.sin(E / 2),
-          Math.sqrt(1 - eccentricity) * Math.cos(E / 2)
+    const e = keplerElements.eccentricity
+
+    let maxIdx = segments
+    if (orbitType === 'hyperbolic') {
+      maxIdx = 64
+    }
+
+    for (let idx = 0; idx <= maxIdx; idx++) {
+      let M = (2 * Math.PI * idx) / segments
+      if (orbitType === 'hyperbolic') {
+        M = (idx - segments / 2) * 0.1
+      }
+
+      const E = solveKepler(M, e)
+      if (isNaN(E)) {
+        console.error(
+          `solveKepler devolvió NaN para M: ${M}, eccentricity: ${e}`
         )
-      const r = semiMajorAxis * (1 - eccentricity * Math.cos(E))
+        continue
+      }
+
+      let ν, r
+
+      if (orbitType === 'elliptical' || orbitType === 'parabolic') {
+        ν =
+          2 *
+          Math.atan2(
+            Math.sqrt(1 + e) * Math.sin(E / 2),
+            Math.sqrt(1 - e) * Math.cos(E / 2)
+          )
+        r = keplerElements.semiMajorAxis * (1 - e * Math.cos(E))
+      } else if (orbitType === 'hyperbolic') {
+        ν =
+          2 *
+          Math.atan2(
+            Math.sqrt(e + 1) * Math.sinh(E / 2),
+            Math.sqrt(e - 1) * Math.cosh(E / 2)
+          )
+        r = keplerElements.semiMajorAxis * (e * Math.cosh(E) - 1)
+      }
 
       const xOrbital = r * Math.cos(ν)
       const yOrbital = r * Math.sin(ν)
 
-      const cosΩ = Math.cos(ORad)
-      const sinΩ = Math.sin(ORad)
-      const cosi = Math.cos(iRad)
-      const sini = Math.sin(iRad)
-      const cosω = Math.cos(ωRad)
-      const sinω = Math.sin(ωRad)
+      const cosΩ = Math.cos(updatedElementsRad.ORad)
+      const sinΩ = Math.sin(updatedElementsRad.ORad)
+      const cosi = Math.cos(updatedElementsRad.iRad)
+      const sini = Math.sin(updatedElementsRad.iRad)
+      const cosω = Math.cos(updatedElementsRad.ωRad)
+      const sinω = Math.sin(updatedElementsRad.ωRad)
 
       const x =
         (cosΩ * cosω - sinΩ * sinω * cosi) * xOrbital +
@@ -98,50 +173,120 @@ export function Planet(planetData) {
 
       points.push(new THREE.Vector3(x * AU, y * AU, z * AU))
     }
+
     return points
   }, [
-    semiMajorAxis,
-    eccentricity,
-    inclination,
-    longitudeOfAscendingNode,
-    argumentOfPeriapsis,
-    ORad,
-    ωRad,
-    iRad,
     AU,
+    orbitType,
+    keplerElements.semiMajorAxis,
+    keplerElements.eccentricity,
+    keplerElements.inclination,
+    keplerElements.longitudeOfAscendingNode,
+    keplerElements.argumentOfPeriapsis,
+    updatedElementsRad.ORad,
+    updatedElementsRad.iRad,
+    updatedElementsRad.ωRad,
   ])
 
-  useFrame((state, delta) => {
-    if (groupRef.current.simulationTime === undefined) {
-      groupRef.current.simulationTime = 0
+  const textMaterial = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#ffffff' }),
+    []
+  )
+
+  const meshMaterial = useMemo(() => {
+    if (thisFocusedPlanet) {
+      return new THREE.MeshStandardMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 1,
+      })
+    } else {
+      return new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 1,
+      })
+    }
+  }, [thisFocusedPlanet, texture])
+
+  useFrame(({ clock }, delta) => {
+    if (!AU) {
+      console.error('AU no está definido')
+      return
     }
 
-    groupRef.current.simulationTime += delta * speedFactor
+    const elapsedTime = clock.getElapsedTime() * speedFactor
 
-    const elapsedDays = groupRef.current.simulationTime
+    const deltaCySimulation = (delta * speedFactor) / 86400
 
-    const M = M0Rad + n * elapsedDays
+    setKeplerElements(prev => ({
+      ...prev,
+      semiMajorAxis: prev.semiMajorAxis + semiMajorAxisRate * deltaCySimulation,
+      eccentricity: prev.eccentricity + eccentricityRate * deltaCySimulation,
+      inclination: prev.inclination + inclinationRate * deltaCySimulation,
+      longitudeOfAscendingNode:
+        prev.longitudeOfAscendingNode +
+        longitudeOfAscendingNodeRate * deltaCySimulation,
+      argumentOfPeriapsis:
+        prev.argumentOfPeriapsis + argumentOfPeriapsisRate * deltaCySimulation,
+      meanAnomalyAtEpoch:
+        prev.meanAnomalyAtEpoch + meanAnomalyAtEpochRate * deltaCySimulation,
+    }))
 
-    const E = solveKepler(M, eccentricity)
+    const updatedRad = {
+      iRad: deg2rad(keplerElements.inclination),
+      ORad: deg2rad(keplerElements.longitudeOfAscendingNode),
+      ωRad: deg2rad(keplerElements.argumentOfPeriapsis),
+      M0Rad: deg2rad(keplerElements.meanAnomalyAtEpoch),
+    }
 
-    const ν =
-      2 *
-      Math.atan2(
-        Math.sqrt(1 + eccentricity) * Math.sin(E / 2),
-        Math.sqrt(1 - eccentricity) * Math.cos(E / 2)
+    let M = updatedRad.M0Rad + n * elapsedTime
+
+    if (orbitType === 'hyperbolic') {
+      M = elapsedTime > 0 ? M : -M
+    }
+
+    const E = solveKepler(M, keplerElements.eccentricity)
+    if (isNaN(E)) {
+      console.error(
+        `solveKepler devolvió NaN para M: ${M}, eccentricity: ${keplerElements.eccentricity}`
       )
+      return
+    }
 
-    const r = semiMajorAxis * (1 - eccentricity * Math.cos(E))
+    let ν, r
+
+    if (orbitType === 'elliptical' || orbitType === 'parabolic') {
+      ν =
+        2 *
+        Math.atan2(
+          Math.sqrt(1 + keplerElements.eccentricity) * Math.sin(E / 2),
+          Math.sqrt(1 - keplerElements.eccentricity) * Math.cos(E / 2)
+        )
+      r =
+        keplerElements.semiMajorAxis *
+        (1 - keplerElements.eccentricity * Math.cos(E))
+    } else if (orbitType === 'hyperbolic') {
+      ν =
+        2 *
+        Math.atan2(
+          Math.sqrt(keplerElements.eccentricity + 1) * Math.sinh(E / 2),
+          Math.sqrt(keplerElements.eccentricity - 1) * Math.cosh(E / 2)
+        )
+      r =
+        keplerElements.semiMajorAxis *
+        (keplerElements.eccentricity * Math.cosh(E) - 1)
+    }
 
     const xOrbital = r * Math.cos(ν)
     const yOrbital = r * Math.sin(ν)
 
-    const cosΩ = Math.cos(ORad)
-    const sinΩ = Math.sin(ORad)
-    const cosi = Math.cos(iRad)
-    const sini = Math.sin(iRad)
-    const cosω = Math.cos(ωRad)
-    const sinω = Math.sin(ωRad)
+    const cosΩ = Math.cos(updatedRad.ORad)
+    const sinΩ = Math.sin(updatedRad.ORad)
+    const cosi = Math.cos(updatedRad.iRad)
+    const sini = Math.sin(updatedRad.iRad)
+    const cosω = Math.cos(updatedRad.ωRad)
+    const sinω = Math.sin(updatedRad.ωRad)
 
     const x =
       (cosΩ * cosω - sinΩ * sinω * cosi) * xOrbital +
@@ -187,13 +332,8 @@ export function Planet(planetData) {
   const computedFontSize = useMemo(() => {
     const minFontSize = 1.5
     const calculatedSize = radius / 2
-    return calculatedSize < minFontSize ? minFontSize : calculatedSize
+    return Math.max(calculatedSize, minFontSize)
   }, [radius])
-
-  const textMaterial = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#ffffff' }),
-    []
-  )
 
   return (
     <>
@@ -202,22 +342,22 @@ export function Planet(planetData) {
           <Line
             points={orbitPoints}
             color={orbitColor}
-            lineWidth={hovered ? 1.6 : 1}
+            lineWidth={1}
             transparent
-            opacity={hovered ? 1 : 0.8}
+            opacity={0.6}
           />
 
           <Line
             points={orbitPoints}
             color={orbitColor}
-            lineWidth={hovered ? 5 : 1}
+            lineWidth={hovered ? 3 : 1}
             transparent
-            opacity={hovered ? 1 : 0.5}
+            opacity={hovered ? 1 : 0.6}
             material={
               new THREE.LineBasicMaterial({
                 color: orbitColor,
                 transparent: true,
-                opacity: hovered ? 1 : 0.5,
+                opacity: hovered ? 1 : 0.6,
                 blending: THREE.AdditiveBlending,
               })
             }
@@ -226,7 +366,7 @@ export function Planet(planetData) {
           <Line
             points={orbitPoints}
             color={'#ffffff'}
-            lineWidth={8}
+            lineWidth={10}
             transparent
             opacity={0}
             onPointerOver={() => setHovered(true)}
@@ -257,11 +397,7 @@ export function Planet(planetData) {
           onPointerOut={() => setHovered(false)}
           onPointerOverCapture={e => (e.object.material.cursor = 'pointer')}>
           <sphereGeometry args={[radius, 32, 32]} />
-          {thisFocusedPlanet ? (
-            <meshStandardMaterial map={texture} transparent opacity={1} />
-          ) : (
-            <meshBasicMaterial map={texture} transparent opacity={1} />
-          )}
+          <primitive object={meshMaterial} attach='material' />
         </mesh>
 
         {showLabels && !thisFocusedPlanet && (

@@ -12,12 +12,12 @@ function SpeedControl() {
   return (
     <div className='speed-control'>
       <label>
-        Velocity: {speedFactor.toFixed(1)} day/s
+        Speed: {speedFactor.toFixed(1)} day/s
         <input
           type='range'
-          min='0.1'
-          max='100'
-          step='0.1'
+          min='1'
+          max='365'
+          step='1'
           value={speedFactor}
           onChange={handleChange}
         />

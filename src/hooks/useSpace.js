@@ -4,20 +4,27 @@ export const useSpace = create((set, get) => ({
   focusedPlanet: null,
   setFocusedPlanet: planet => {
     if (!planet) {
-      get().setCamera('orbit')
-      set({ focusedPlanet: null })
+      set({
+        focusedPlanet: null,
+        camera: 'orbit',
+        speedFactor: get().prevSpeedFactor,
+      })
       return
     }
     if (get().focusedPlanet?.name !== planet?.name) {
-      if (get().camera === 'focus') return
-      set({ focusedPlanet: planet })
+      if (get().camera === 'ship') return
+      const prevSpeedFactor = get().speedFactor
+      set({ focusedPlanet: planet, speedFactor: 1, prevSpeedFactor })
     }
   },
+
+  AU: 20,
 
   camera: 'orbit',
   setCamera: camera => set({ camera }),
 
-  speedFactor: 1,
+  prevSpeedFactor: 0,
+  speedFactor: 100,
   setSpeedFactor: factor => set({ speedFactor: factor }),
 
   showLabels: true,

@@ -7,7 +7,7 @@ import { Line, Text } from '@react-three/drei'
 
 export function NEO({ data }) {
   const { camera } = useThree()
-  const { speedFactor, showNEOsLabels, showNEOsOrbits } = useSpace()
+  const { speedFactor, showNEOsLabels, showNEOsOrbits, AU } = useSpace()
   const neoRef = useRef()
   const textRef = useRef()
 
@@ -25,50 +25,94 @@ export function NEO({ data }) {
     is_potentially_hazardous_asteroid,
   } = data
 
-  const semiMajorAxis = parseFloat(semi_major_axis)
-  const e = parseFloat(eccentricity)
-  const i = parseFloat(inclination)
-  const Ω = parseFloat(ascending_node_longitude)
-  const ω = parseFloat(perihelion_argument)
-  const M0 = parseFloat(mean_anomaly)
-  const orbitalPeriod = parseFloat(orbital_period)
+  const semiMajorAxis = useMemo(
+    () => parseFloat(semi_major_axis),
+    [semi_major_axis]
+  )
+  const e = useMemo(() => parseFloat(eccentricity), [eccentricity])
+  const i = useMemo(() => parseFloat(inclination), [inclination])
+  const Ω = useMemo(
+    () => parseFloat(ascending_node_longitude),
+    [ascending_node_longitude]
+  )
+  const ω = useMemo(
+    () => parseFloat(perihelion_argument),
+    [perihelion_argument]
+  )
+  const M0 = useMemo(() => parseFloat(mean_anomaly), [mean_anomaly])
+  const orbitalPeriod = useMemo(
+    () => parseFloat(orbital_period),
+    [orbital_period]
+  )
 
-  const deg2rad = deg => (deg * Math.PI) / 180
+  const deg2rad = useMemo(() => deg => (deg * Math.PI) / 180, [])
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(0, 1, 0).normalize(),
     []
   )
 
-  const AU = 20
+  const ΩRad = useMemo(() => deg2rad(Ω), [Ω, deg2rad])
+  const iRad = useMemo(() => deg2rad(i), [i, deg2rad])
+  const ωRad = useMemo(() => deg2rad(ω), [ω, deg2rad])
+  const M0Rad = useMemo(() => deg2rad(M0), [M0, deg2rad])
+
+  const orbitType = useMemo(() => {
+    if (e < 1) return 'elliptical'
+    if (e === 1) return 'parabolic'
+    return 'hyperbolic'
+  }, [e])
 
   const orbitPoints = useMemo(() => {
     const points = []
     const numSegments = 360
+    const deg2radFn = deg2rad
 
     for (let segment = 0; segment <= numSegments; segment++) {
       const angle = (segment / numSegments) * 2 * Math.PI
-      const M = deg2rad(M0) + angle
+      let M = M0Rad + angle
+
+      if (orbitType === 'hyperbolic') {
+        M = (segment - numSegments / 2) * 0.1
+      }
+
       const E = solveKepler(M, e)
-
-      const ν =
-        2 *
-        Math.atan2(
-          Math.sqrt(1 + e) * Math.sin(E / 2),
-          Math.sqrt(1 - e) * Math.cos(E / 2)
+      if (isNaN(E)) {
+        console.error(
+          `solveKepler devolvió NaN para M: ${M}, eccentricity: ${e}`
         )
+        continue
+      }
 
-      const r = semiMajorAxis * (1 - e * Math.cos(E))
+      let ν, r
+
+      if (orbitType === 'elliptical' || orbitType === 'parabolic') {
+        ν =
+          2 *
+          Math.atan2(
+            Math.sqrt(1 + e) * Math.sin(E / 2),
+            Math.sqrt(1 - e) * Math.cos(E / 2)
+          )
+        r = semiMajorAxis * (1 - e * Math.cos(E))
+      } else if (orbitType === 'hyperbolic') {
+        ν =
+          2 *
+          Math.atan2(
+            Math.sqrt(e + 1) * Math.sinh(E / 2),
+            Math.sqrt(e - 1) * Math.cosh(E / 2)
+          )
+        r = semiMajorAxis * (e * Math.cosh(E) - 1)
+      }
 
       const xOrbital = r * Math.cos(ν)
       const yOrbital = r * Math.sin(ν)
 
-      const cosΩ = Math.cos(deg2rad(Ω))
-      const sinΩ = Math.sin(deg2rad(Ω))
-      const cosi = Math.cos(deg2rad(i))
-      const sini = Math.sin(deg2rad(i))
-      const cosω = Math.cos(deg2rad(ω))
-      const sinω = Math.sin(deg2rad(ω))
+      const cosΩ = Math.cos(ΩRad)
+      const sinΩ = Math.sin(ΩRad)
+      const cosi = Math.cos(iRad)
+      const sini = Math.sin(iRad)
+      const cosω = Math.cos(ωRad)
+      const sinω = Math.sin(ωRad)
 
       const x =
         (cosΩ * cosω - sinΩ * sinω * cosi) * xOrbital +
@@ -81,32 +125,70 @@ export function NEO({ data }) {
       points.push(new THREE.Vector3(x * AU, y * AU, z * AU))
     }
     return points
-  }, [semiMajorAxis, e, i, Ω, ω, M0, AU])
+  }, [semiMajorAxis, e, ΩRad, iRad, ωRad, M0Rad, AU, orbitType, deg2rad])
+
+  const neoMaterial = useMemo(() => {
+    return new THREE.MeshBasicMaterial({
+      color: is_potentially_hazardous_asteroid ? 'red' : 'cyan',
+    })
+  }, [is_potentially_hazardous_asteroid])
+
+  const textMaterial = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#ffffff' }),
+    []
+  )
+
+  const sphereGeometry = useMemo(() => new THREE.SphereGeometry(0.1, 8, 8), [])
 
   useFrame(({ clock }, delta) => {
+    if (!AU) {
+      console.error('AU no está definido')
+      return
+    }
+
     const elapsedDays = (clock.getElapsedTime() * speedFactor * 10000) / 86400
-    const M = deg2rad(M0) + (2 * Math.PI * elapsedDays) / orbitalPeriod
+
+    let M = M0Rad + (2 * Math.PI * elapsedDays) / orbitalPeriod
+
+    if (orbitType === 'hyperbolic' && elapsedDays < 0) {
+      M = -M
+    }
 
     const E = solveKepler(M, e)
+    if (isNaN(E)) {
+      console.error(`solveKepler devolvió NaN para M: ${M}, eccentricity: ${e}`)
+      return
+    }
 
-    const ν =
-      2 *
-      Math.atan2(
-        Math.sqrt(1 + e) * Math.sin(E / 2),
-        Math.sqrt(1 - e) * Math.cos(E / 2)
-      )
+    let ν, r
 
-    const r = semiMajorAxis * (1 - e * Math.cos(E))
+    if (orbitType === 'elliptical' || orbitType === 'parabolic') {
+      ν =
+        2 *
+        Math.atan2(
+          Math.sqrt(1 + e) * Math.sin(E / 2),
+          Math.sqrt(1 - e) * Math.cos(E / 2)
+        )
+      r = semiMajorAxis * (1 - e * Math.cos(E))
+    } else if (orbitType === 'hyperbolic') {
+      ν =
+        2 *
+        Math.atan2(
+          Math.sqrt(e + 1) * Math.sinh(E / 2),
+          Math.sqrt(e - 1) * Math.cosh(E / 2)
+        )
+      r = semiMajorAxis * (e * Math.cosh(E) - 1)
+    }
 
     const xOrbital = r * Math.cos(ν)
     const yOrbital = r * Math.sin(ν)
 
-    const cosΩ = Math.cos(deg2rad(Ω))
-    const sinΩ = Math.sin(deg2rad(Ω))
-    const cosi = Math.cos(deg2rad(i))
-    const sini = Math.sin(deg2rad(i))
-    const cosω = Math.cos(deg2rad(ω))
-    const sinω = Math.sin(deg2rad(ω))
+    const cosΩ = Math.cos(ΩRad)
+    const sinΩ = Math.sin(ΩRad)
+    const cosi = Math.cos(iRad)
+    const sini = Math.sin(iRad)
+    const cosω = Math.cos(ωRad)
+    const sinω = Math.sin(ωRad)
 
     const x =
       (cosΩ * cosω - sinΩ * sinω * cosi) * xOrbital +
@@ -129,12 +211,23 @@ export function NEO({ data }) {
 
   return (
     <>
-      <mesh ref={neoRef} castShadow receiveShadow>
-        <sphereGeometry args={[0.1, 8, 8]} />
-        <meshBasicMaterial
+      {showNEOsOrbits && (
+        <Line
+          points={orbitPoints}
           color={is_potentially_hazardous_asteroid ? 'red' : 'cyan'}
+          lineWidth={0.2}
+          transparent
+          opacity={0.6}
         />
-      </mesh>
+      )}
+
+      <mesh
+        ref={neoRef}
+        castShadow
+        receiveShadow
+        geometry={sphereGeometry}
+        material={neoMaterial}
+      />
 
       {showNEOsLabels && (
         <Text
@@ -142,17 +235,10 @@ export function NEO({ data }) {
           fontSize={0.1}
           color='white'
           anchorX='center'
-          anchorY='middle'>
+          anchorY='middle'
+          material={textMaterial}>
           {name}
         </Text>
-      )}
-
-      {showNEOsOrbits && (
-        <Line
-          points={orbitPoints}
-          color={is_potentially_hazardous_asteroid ? 'red' : 'cyan'}
-          lineWidth={0.2}
-        />
       )}
     </>
   )

@@ -17,10 +17,10 @@ function CameraControls() {
       <label>
         <input
           type='radio'
-          checked={camera === 'focus'}
-          onChange={() => setCamera('focus')}
+          checked={camera === 'ship'}
+          onChange={() => setCamera('ship')}
         />
-        Focus
+        Ship
       </label>
     </div>
   )
