@@ -21,7 +21,7 @@ export function PlanetDetails() {
   }, [focusedPlanet])
 
   if (!focusedPlanet) return null
-  console.log(actualPlanet?.name)
+
   return (
     <section className='planet-details'>
       <button className='close-button ' onClick={() => setFocusedPlanet(null)}>

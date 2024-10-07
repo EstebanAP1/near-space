@@ -4,13 +4,18 @@ export const useSpace = create((set, get) => ({
   focusedPlanet: null,
   setFocusedPlanet: planet => {
     if (!planet) {
+      get().setCamera('orbit')
       set({ focusedPlanet: null })
       return
     }
     if (get().focusedPlanet?.name !== planet?.name) {
+      if (get().camera === 'focus') return
       set({ focusedPlanet: planet })
     }
   },
+
+  camera: 'orbit',
+  setCamera: camera => set({ camera }),
 
   speedFactor: 1,
   setSpeedFactor: factor => set({ speedFactor: factor }),
@@ -21,9 +26,13 @@ export const useSpace = create((set, get) => ({
   showOrbits: true,
   toggleOrbits: () => set(state => ({ showOrbits: !state.showOrbits })),
 
-  showInclination: true,
-  toggleInclination: () =>
-    set(state => ({ showInclination: !state.showInclination })),
+  showNEOsOrbits: false,
+  toggleNEOsOrbits: () =>
+    set(state => ({ showNEOsOrbits: !state.showNEOsOrbits })),
+
+  showNEOsLabels: true,
+  toggleNEOsLabels: () =>
+    set(state => ({ showNEOsLabels: !state.showNEOsLabels })),
 
   neos: [],
   setNEOs: neos => set({ neos }),

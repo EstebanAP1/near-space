@@ -35,6 +35,7 @@ body {
 
 .ui-controls,
 .speed-control,
+.camera-controls,
 .file-upload {
   position: absolute;
   right: 10px;
@@ -49,27 +50,29 @@ body {
   color: white;
 }
 
-.ui-controls {
-  top: 100px;
-}
-
 .speed-control {
   top: 10px;
   max-width: 350px;
 }
 
-.file-upload {
-  top: 150px;
+.ui-controls {
+  top: 100px;
+}
+
+.camera-controls {
+  top: 240px;
 }
 
 .ui-controls label,
-.speed-control label {
+.speed-control label,
+.camera-controls label {
   display: block;
   margin-bottom: 5px;
   cursor: pointer;
 }
 
-.ui-controls input {
+.ui-controls input,
+.camera-controls input {
   margin-right: 5px;
 }
 
@@ -175,4 +178,17 @@ body {
     overflow-y: auto;
     padding: 1em;
   }
+}
+
+.icon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 80px;
+  height: 80px;
+}
+
+.icon img {
+  width: 100%;
+  height: 100%;
 }

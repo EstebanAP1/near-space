@@ -8,6 +8,7 @@ import {
   saturnTexture,
   uranusTexture,
   neptuneTexture,
+  moonTexture,
 } from '../images/textures'
 
 export const SUN = {

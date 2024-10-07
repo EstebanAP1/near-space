@@ -16,13 +16,15 @@ export function Sun() {
 
   useFrame((state, delta) => {
     if (sunRef.current) {
-      sunRef.current.rotateOnAxis(rotationAxisVector, delta * SUN.rotationSpeed)
+      sunRef.current.rotateOnAxis(
+        rotationAxisVector,
+        delta * SUN.rotationSpeed * 170
+      )
     }
   })
 
   return (
     <>
-      {/* Mesh del Sol */}
       <mesh
         ref={sunRef}
         position={[0, 0, 0]}
@@ -43,7 +45,6 @@ export function Sun() {
         />
       </mesh>
 
-      {/* Luz puntual del Sol */}
       <pointLight
         position={[0, 0, 0]}
         intensity={10}

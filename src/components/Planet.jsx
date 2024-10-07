@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from 'react'
+import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Text, Line } from '@react-three/drei'
@@ -28,11 +28,11 @@ export function Planet(planetData) {
   } = planetData
 
   const {
+    focusedPlanet,
+    setFocusedPlanet,
     speedFactor,
     showLabels,
     showOrbits,
-    focusedPlanet,
-    setFocusedPlanet,
   } = useSpace()
 
   const thisFocusedPlanet = useMemo(
@@ -155,9 +155,10 @@ export function Planet(planetData) {
       groupRef.current.position.set(x * AU, y * AU, z * AU)
 
       if (planetRef.current) {
+        // Aumenta la velocidad de rotación para hacerla más visible
         planetRef.current.rotateOnAxis(
           rotationAxisVector,
-          rotationSpeed * delta
+          rotationSpeed * delta * 50 // Multiplicador aumentado a 10 para mayor visibilidad
         )
       }
     }
@@ -189,6 +190,11 @@ export function Planet(planetData) {
     const calculatedSize = radius / 2
     return calculatedSize < minFontSize ? minFontSize : calculatedSize
   }, [radius])
+
+  const textMaterial = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#ffffff' }),
+    []
+  )
 
   return (
     <>
@@ -264,7 +270,6 @@ export function Planet(planetData) {
             ref={textRef}
             position={[0, radius + 2, 0]}
             fontSize={computedFontSize}
-            opacity={hovered ? 1 : 0.8}
             onClick={() =>
               setFocusedPlanet({
                 ...planetData,
@@ -273,9 +278,9 @@ export function Planet(planetData) {
             }
             onPointerOver={() => setHovered(true)}
             onPointerOut={() => setHovered(false)}
-            color='white'
             anchorX='center'
-            anchorY='middle'>
+            anchorY='middle'
+            material={textMaterial}>
             {name}
           </Text>
         )}

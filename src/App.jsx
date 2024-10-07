@@ -12,16 +12,19 @@ import { NEOs } from './components/NEOs'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { CameraController } from './components/CameraController'
 import { PlanetDetails } from './components/PlanetDetails'
+import CameraControls from './components/CameraControls'
+import { Icon } from './components/Icon'
 
 function App() {
   useNEOs()
 
   return (
     <>
+      <Icon />
       <Canvas
         camera={{ position: [0, 0, 1000], near: 0.1, far: 10000 }}
         dpr={[1, 2]}>
-        <ambientLight intensity={0.3} />
+        <ambientLight intensity={1} />
         <pointLight position={[0, 0, 0]} intensity={2} />
 
         <CameraController />
@@ -38,6 +41,7 @@ function App() {
 
       <SpeedControl />
       <UIControls />
+      <CameraControls />
       <PlanetDetails />
     </>
   )

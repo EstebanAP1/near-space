@@ -1,10 +1,17 @@
-// src/components/UIControls.js
-
 import React from 'react'
 import { useSpace } from '../hooks/useSpace'
 
 function UIControls() {
-  const { showLabels, toggleLabels, showOrbits, toggleOrbits } = useSpace()
+  const {
+    showLabels,
+    toggleLabels,
+    showOrbits,
+    toggleOrbits,
+    showNEOsOrbits,
+    toggleNEOsOrbits,
+    showNEOsLabels,
+    toggleNEOsLabels,
+  } = useSpace()
 
   return (
     <div className='ui-controls'>
@@ -14,7 +21,23 @@ function UIControls() {
       </label>
       <label>
         <input type='checkbox' checked={showOrbits} onChange={toggleOrbits} />
-        Show/hide orbits
+        Show/hide planet orbits
+      </label>
+      <label>
+        <input
+          type='checkbox'
+          checked={showNEOsOrbits}
+          onChange={toggleNEOsOrbits}
+        />
+        Show/hide NEOs orbits
+      </label>
+      <label>
+        <input
+          type='checkbox'
+          checked={showNEOsLabels}
+          onChange={toggleNEOsLabels}
+        />
+        Show/hide NEOs labels
       </label>
     </div>
   )
