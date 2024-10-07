@@ -9,7 +9,6 @@ function FileUpload() {
     Papa.parse(file, {
       header: true,
       complete: results => {
-        // Asumiendo que el CSV tiene una estructura similar a los datos de NEO de la NASA
         setNEOs(results.data)
       },
       error: error => {

@@ -1,5 +1,3 @@
-// src/utils/kepler.js
-
 export const solveKepler = (M, e) => {
   let E = M
   let delta = 1

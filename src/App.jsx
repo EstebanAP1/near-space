@@ -1,5 +1,3 @@
-// src/App.js
-
 import React from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Sun } from './components/Sun'

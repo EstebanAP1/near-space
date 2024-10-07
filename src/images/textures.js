@@ -1,5 +1,3 @@
-// src/textures.js
-
 import { NearestFilter, RepeatWrapping, TextureLoader } from 'three'
 import {
   background,

@@ -22,6 +22,7 @@ export function NEO({ data }) {
       mean_anomaly,
       orbital_period,
     },
+    is_potentially_hazardous_asteroid,
   } = data
 
   const semiMajorAxis = parseFloat(semi_major_axis)
@@ -130,7 +131,9 @@ export function NEO({ data }) {
     <>
       <mesh ref={neoRef} castShadow receiveShadow>
         <sphereGeometry args={[0.1, 8, 8]} />
-        <meshBasicMaterial color='cyan' />
+        <meshBasicMaterial
+          color={is_potentially_hazardous_asteroid ? 'red' : 'cyan'}
+        />
       </mesh>
 
       {showNEOsLabels && (
@@ -145,7 +148,11 @@ export function NEO({ data }) {
       )}
 
       {showNEOsOrbits && (
-        <Line points={orbitPoints} color='cyan' lineWidth={0.2} />
+        <Line
+          points={orbitPoints}
+          color={is_potentially_hazardous_asteroid ? 'red' : 'cyan'}
+          lineWidth={0.2}
+        />
       )}
     </>
   )

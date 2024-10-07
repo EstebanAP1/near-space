@@ -8,7 +8,7 @@ export function CameraController() {
   const orbitRef = useRef()
   const fpvRef = useRef()
   const prevCameraPosition = useRef()
-  const prevCameraType = useRef() // Track previous camera type
+  const prevCameraType = useRef()
   const { camera } = useThree()
   const { focusedPlanet, camera: cameraType } = useSpace()
 
@@ -21,7 +21,6 @@ export function CameraController() {
   const maxDistanceFactor = 10
 
   useEffect(() => {
-    // If the camera type hasn't changed, don't reset the camera
     if (prevCameraType.current === cameraType) return
 
     if (focusedPlanet && focusedPlanet.groupRef.current && orbitRef.current) {
@@ -70,7 +69,6 @@ export function CameraController() {
       }
     }
 
-    // Update previous camera type after change
     prevCameraType.current = cameraType
   }, [
     focusedPlanet,
@@ -80,13 +78,12 @@ export function CameraController() {
     maxDistanceFactor,
     defaultMinDistance,
     defaultMaxDistance,
-    cameraType, // Add this to track camera type changes
+    cameraType,
   ])
 
   useEffect(() => {
     if (orbitRef.current && fpvRef.current) {
       if (cameraType === 'orbit') {
-        // Only set the target if it changed
         if (!orbitRef.current.target.equals(new Vector3(0, 0, 0))) {
           orbitRef.current.target.set(0, 0, 0)
           orbitRef.current.update()

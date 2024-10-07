@@ -155,10 +155,9 @@ export function Planet(planetData) {
       groupRef.current.position.set(x * AU, y * AU, z * AU)
 
       if (planetRef.current) {
-        // Aumenta la velocidad de rotación para hacerla más visible
         planetRef.current.rotateOnAxis(
           rotationAxisVector,
-          rotationSpeed * delta * 50 // Multiplicador aumentado a 10 para mayor visibilidad
+          rotationSpeed * delta * 50
         )
       }
     }
