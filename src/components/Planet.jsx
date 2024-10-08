@@ -402,7 +402,7 @@ export function Planet(planetData) {
     const distance = cameraPosition.distanceTo(planetPosition)
 
     const minDistance = semiMajorAxis * AU * 4
-    const maxDistance = semiMajorAxis * AU * 8
+    const maxDistance = semiMajorAxis * AU * 15
 
     let newOpacity = 1
     if (distance > minDistance) {
@@ -433,7 +433,7 @@ export function Planet(planetData) {
     const maxCameraDistance = 2500
 
     const minFontSize = 1.5
-    const maxFontSize = 75
+    const maxFontSize = 100
     let fontSize = minFontSize
 
     if (

@@ -73,6 +73,16 @@ body {
   top: 240px;
 }
 
+.ui-controls span {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
 .ui-controls label,
 .speed-control label,
 .camera-controls label {

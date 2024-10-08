@@ -15,13 +15,14 @@ function UIControls() {
 
   return (
     <div className='ui-controls'>
+      <span>Show/hide</span>
       <label>
         <input type='checkbox' checked={showLabels} onChange={toggleLabels} />
-        Show/hide labels
+        Labels
       </label>
       <label>
         <input type='checkbox' checked={showOrbits} onChange={toggleOrbits} />
-        Show/hide planet orbits
+        Planet orbits
       </label>
       <label>
         <input
@@ -29,7 +30,7 @@ function UIControls() {
           checked={showNEOsOrbits}
           onChange={toggleNEOsOrbits}
         />
-        Show/hide NEOs orbits
+        NEOs orbits
       </label>
       <label>
         <input
@@ -37,7 +38,7 @@ function UIControls() {
           checked={showNEOsLabels}
           onChange={toggleNEOsLabels}
         />
-        Show/hide NEOs labels
+        NEOs labels
       </label>
     </div>
   )

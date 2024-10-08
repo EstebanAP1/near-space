@@ -21,7 +21,7 @@ function App() {
     <>
       <Icon />
       <Canvas
-        camera={{ position: [6, -65, 28], near: 0.1, far: 10000 }}
+        camera={{ position: [6, -65, 28], near: 0.1, far: 50000 }}
         dpr={[1, 2]}>
         <ambientLight intensity={1} />
         <pointLight position={[0, 0, 0]} intensity={2} />
@@ -44,7 +44,7 @@ function App() {
 
       <SpeedControl />
       <UIControls />
-      <CameraControls />
+      {/* <CameraControls /> */}
       <PlanetDetails />
     </>
   )
