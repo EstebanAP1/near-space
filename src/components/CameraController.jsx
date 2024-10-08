@@ -17,7 +17,7 @@ export function CameraController() {
 
   const baseDistance = 15
   const minDistance = 2
-  const maxDistance = 300
+  const maxDistance = 2500
 
   const lerpFactor = 0.1
   const backLerpFactor = 0.3
