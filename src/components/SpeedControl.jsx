@@ -15,8 +15,8 @@ function SpeedControl() {
         Speed: {speedFactor.toFixed(1)} day/s
         <input
           type='range'
-          min='1'
-          max='365'
+          min='0'
+          max='100'
           step='1'
           value={speedFactor}
           onChange={handleChange}

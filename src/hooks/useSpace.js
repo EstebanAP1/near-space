@@ -24,7 +24,7 @@ export const useSpace = create((set, get) => ({
   setCamera: camera => set({ camera }),
 
   prevSpeedFactor: 0,
-  speedFactor: 100,
+  speedFactor: 10,
   setSpeedFactor: factor => set({ speedFactor: factor }),
 
   showLabels: true,

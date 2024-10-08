@@ -66,7 +66,6 @@ export function NEO({ data }) {
   const orbitPoints = useMemo(() => {
     const points = []
     const numSegments = 360
-    const deg2radFn = deg2rad
 
     for (let segment = 0; segment <= numSegments; segment++) {
       const angle = (segment / numSegments) * 2 * Math.PI

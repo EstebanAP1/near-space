@@ -2,10 +2,14 @@ import React from 'react'
 import { useSpace } from '../hooks/useSpace'
 
 function CameraControls() {
-  const { camera, setCamera } = useSpace()
+  const { camera, setCamera, focusedPlanet } = useSpace()
 
   return (
-    <div className='camera-controls'>
+    <div
+      className='camera-controls'
+      style={{
+        display: focusedPlanet ? 'none' : 'block',
+      }}>
       <label>
         <input
           type='radio'

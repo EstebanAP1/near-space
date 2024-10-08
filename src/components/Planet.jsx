@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { Text, Line } from '@react-three/drei'
+import { Text, Line, useTexture } from '@react-three/drei'
 import { useSpace } from '../hooks/useSpace'
 import { solveKepler } from '../utils/kepler'
 
@@ -14,7 +14,7 @@ export function Planet(planetData) {
   const {
     name,
     radius,
-    texture,
+    texturePath,
     rotationSpeed,
     rotationAxis,
     semiMajorAxis,
@@ -41,6 +41,8 @@ export function Planet(planetData) {
     showOrbits,
     AU,
   } = useSpace()
+
+  const texture = useTexture(texturePath)
 
   const thisFocusedPlanet = useMemo(
     () => focusedPlanet?.name === name,
