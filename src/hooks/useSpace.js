@@ -18,7 +18,7 @@ export const useSpace = create((set, get) => ({
     }
   },
 
-  AU: 20,
+  AU: 50,
 
   camera: 'orbit',
   setCamera: camera => set({ camera }),

@@ -1,14 +1,14 @@
-// components/Sun.jsx
 import React, { useRef, useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { SUN } from '../data/spaceData'
 import { useSpace } from '../hooks/useSpace'
-import { useTexture } from '@react-three/drei'
+import { useCallback } from 'react'
 
 export function Sun() {
   const sunRef = useRef()
 
+  const { camera } = useThree()
   const { focusedPlanet, setFocusedPlanet } = useSpace()
 
   const rotationAxisVector = useMemo(
@@ -16,7 +16,29 @@ export function Sun() {
     []
   )
 
-  const texture = useTexture(SUN.texturePath)
+  const thisFocusedPlanet = useMemo(
+    () => focusedPlanet?.name === SUN.name,
+    [focusedPlanet, SUN.name]
+  )
+
+  const meshMaterial = useMemo(() => {
+    if (thisFocusedPlanet) {
+      return new THREE.MeshStandardMaterial({
+        map: SUN.texture,
+        emissive: SUN.color,
+        emissiveIntensity: 0.5,
+        transparent: false,
+        opacity: 1,
+      })
+    } else {
+      return new THREE.MeshStandardMaterial({
+        color: SUN.color,
+        emissive: SUN.color,
+        transparent: false,
+        opacity: 1,
+      })
+    }
+  }, [thisFocusedPlanet])
 
   useFrame((state, delta) => {
     if (sunRef.current) {
@@ -27,26 +49,33 @@ export function Sun() {
     }
   })
 
+  const handleClick = useCallback(() => {
+    setFocusedPlanet({
+      ...SUN,
+      planetGroupRef: sunRef,
+    })
+  }, [setFocusedPlanet, SUN])
+
+  const handlePointerOver = useCallback(() => {
+    document.body.style.cursor = 'pointer'
+  }, [])
+
+  const handlePointerOut = useCallback(() => {
+    document.body.style.cursor = 'auto'
+  }, [])
+
   return (
     <>
       <mesh
         ref={sunRef}
         position={[0, 0, 0]}
         castShadow
-        onClick={() => {
-          setFocusedPlanet({
-            ...SUN,
-            groupRef: sunRef,
-          })
-        }}
-        opacity={focusedPlanet?.name === 'Sun' ? 1 : 0.8}
-        onPointerOverCapture={e => (e.object.material.cursor = 'pointer')}>
-        <sphereGeometry args={[SUN.radius, 64, 64]} />
-        <meshBasicMaterial
-          map={texture}
-          blending={THREE.AdditiveBlending}
-          color={0xffff99}
-        />
+        onClick={handleClick}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+        opacity={focusedPlanet?.name === 'Sun' ? 1 : 0.8}>
+        <sphereGeometry args={[SUN.radius, 32, 32]} />
+        <primitive object={meshMaterial} attach='material' />
       </mesh>
 
       <pointLight

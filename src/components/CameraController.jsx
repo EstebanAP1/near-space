@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { FirstPersonControls, OrbitControls } from '@react-three/drei'
 import { Vector3 } from 'three'
@@ -7,89 +7,75 @@ import { useSpace } from '../hooks/useSpace'
 export function CameraController() {
   const orbitRef = useRef()
   const shipRef = useRef()
-  const prevCameraPosition = useRef()
   const { camera } = useThree()
-  const { focusedPlanet, camera: cameraType } = useSpace()
+  const cameraType = useSpace(state => state.camera)
+  const focusedPlanet = useSpace(state => state.focusedPlanet)
 
-  const offset = new Vector3(0, 0, 10)
+  const previousCameraPosition = useRef(new Vector3())
+  const previousControlsTarget = useRef(new Vector3())
+  const isCameraStored = useRef(false)
 
-  const defaultMinDistance = 10
-  const defaultMaxDistance = 1000
+  const baseDistance = 15
+  const minDistance = 2
+  const maxDistance = 300
 
-  const minDistanceFactor = 2
-  const maxDistanceFactor = 10
+  const lerpFactor = 0.1
+  const backLerpFactor = 0.3
 
-  useEffect(() => {
-    if (orbitRef.current && shipRef.current) {
-      if (cameraType === 'orbit') {
-        if (!orbitRef.current.target.equals(new Vector3(0, 0, 0))) {
-          orbitRef.current.target.set(0, 0, 0)
+  useFrame(() => {
+    if (cameraType === 'orbit') {
+      if (focusedPlanet && focusedPlanet.planetGroupRef.current) {
+        if (!isCameraStored.current) {
+          previousCameraPosition.current.copy(camera.position)
+          if (orbitRef.current) {
+            previousControlsTarget.current.copy(orbitRef.current.target)
+          }
+          isCameraStored.current = true
+        }
+
+        const planetPosition =
+          focusedPlanet.planetGroupRef.current.position.clone()
+
+        const radius = focusedPlanet.radius || 1
+        let calculatedDistance = baseDistance * Math.log(radius)
+
+        calculatedDistance = Math.max(
+          minDistance,
+          Math.min(calculatedDistance, maxDistance)
+        )
+
+        const direction = new Vector3(0, -5, 10).normalize()
+        const adjustedOffset = direction.multiplyScalar(calculatedDistance)
+
+        const desiredCameraPosition = planetPosition.clone().add(adjustedOffset)
+
+        camera.position.lerp(desiredCameraPosition, lerpFactor)
+
+        if (orbitRef.current) {
+          orbitRef.current.target.lerp(planetPosition, lerpFactor)
           orbitRef.current.update()
         }
       } else {
-        shipRef.current.target.set(0, 0, 0)
-        shipRef.current.update()
-      }
-    }
-  }, [cameraType])
+        if (isCameraStored.current) {
+          camera.position.lerp(previousCameraPosition.current, backLerpFactor)
 
-  useEffect(() => {
-    if (focusedPlanet && focusedPlanet.groupRef.current && orbitRef.current) {
-      prevCameraPosition.current = camera.position.clone()
+          if (orbitRef.current) {
+            orbitRef.current.target.lerp(
+              previousControlsTarget.current,
+              backLerpFactor
+            )
+            orbitRef.current.update()
+          }
 
-      orbitRef.current.enablePan = false
-
-      orbitRef.current.enableZoom = true
-
-      const planetRadius = focusedPlanet.radius || 1
-      const calculatedMinDistance = planetRadius * minDistanceFactor
-      const calculatedMaxDistance = planetRadius * maxDistanceFactor
-
-      orbitRef.current.minDistance = calculatedMinDistance
-      orbitRef.current.maxDistance = calculatedMaxDistance
-
-      const planetPosition = focusedPlanet.groupRef.current.position.clone()
-
-      orbitRef.current.target.copy(planetPosition)
-
-      const desiredCameraPosition = planetPosition.clone().add(offset)
-      camera.position.copy(desiredCameraPosition)
-
-      orbitRef.current.update()
-    } else if (orbitRef.current) {
-      orbitRef.current.enablePan = true
-      orbitRef.current.enableZoom = true
-
-      orbitRef.current.minDistance = defaultMinDistance
-      orbitRef.current.maxDistance = defaultMaxDistance
-
-      orbitRef.current.target.set(0, 0, 0)
-
-      if (prevCameraPosition.current && !focusedPlanet?.groupRef.current) {
-        camera.position.copy(prevCameraPosition.current)
-        orbitRef.current.update()
-      }
-    }
-  }, [
-    focusedPlanet,
-    camera,
-    offset,
-    minDistanceFactor,
-    maxDistanceFactor,
-    defaultMinDistance,
-    defaultMaxDistance,
-  ])
-
-  useFrame(() => {
-    if (focusedPlanet && focusedPlanet.groupRef.current && orbitRef.current) {
-      const planetPosition = focusedPlanet.groupRef.current.position.clone()
-
-      if (
-        cameraType === 'orbit' &&
-        !orbitRef.current.target.equals(planetPosition)
-      ) {
-        orbitRef.current.target.copy(planetPosition)
-        orbitRef.current.update()
+          if (camera.position.distanceTo(previousCameraPosition.current) < 10) {
+            camera.position.copy(previousCameraPosition.current)
+            if (orbitRef.current) {
+              orbitRef.current.target.copy(previousControlsTarget.current)
+              orbitRef.current.update()
+            }
+            isCameraStored.current = false
+          }
+        }
       }
     }
   })
@@ -99,11 +85,12 @@ export function CameraController() {
       {cameraType === 'orbit' && (
         <OrbitControls
           ref={orbitRef}
-          enablePan={true}
+          enablePan={false}
           enableZoom={true}
           enableRotate={true}
-          minDistance={defaultMinDistance}
-          maxDistance={defaultMaxDistance}
+          zoomSpeed={3}
+          minDistance={minDistance}
+          maxDistance={maxDistance}
           minPolarAngle={0}
           maxPolarAngle={Math.PI}
           minAzimuthAngle={-Infinity}

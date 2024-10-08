@@ -1,10 +1,23 @@
+import {
+  earthTexture,
+  jupiterTexture,
+  marsTexture,
+  mercuryTexture,
+  neptuneTexture,
+  saturnTexture,
+  sunTexture,
+  uranusTexture,
+  venusTexture,
+} from '../images/textures'
+
 export const SUN = {
   name: 'Sun',
-  radius: 696340 / 174085,
+  radius: 696340 / 100000,
   realRadius: 696340,
-  texturePath: 'textures/sun.jpg',
+  texture: sunTexture,
   rotationSpeed: 360 / (25.4 * 86400),
   rotationAxis: [0, 1, 0],
+  color: 'yellow',
 }
 
 export const PLANETS = [
@@ -12,7 +25,7 @@ export const PLANETS = [
     name: 'Mercury',
     radius: 2440 / 20000,
     realRadius: 2440,
-    texturePath: 'textures/mercury.jpg',
+    texture: mercuryTexture,
     rotationSpeed: 360 / (58.6 * 86400),
     rotationAxis: [0, 0.999, 0.044],
     // Elementos de Kepler
@@ -36,7 +49,7 @@ export const PLANETS = [
     name: 'Venus',
     radius: 6052 / 20000,
     realRadius: 6052,
-    texturePath: 'textures/venus_atmosphere.jpg',
+    texture: venusTexture,
     rotationSpeed: -(360 / (243 * 86400)),
     rotationAxis: [0, 0.999, 0.027],
     // Elementos de Kepler
@@ -60,7 +73,7 @@ export const PLANETS = [
     name: 'Earth',
     radius: 6371 / 20000,
     realRadius: 6371,
-    texturePath: 'textures/earth_daymap.jpg',
+    texture: earthTexture,
     rotationSpeed: 360 / 86400,
     rotationAxis: [0, 0.917, 0.398],
     // Elementos de Kepler (EM Barycenter)
@@ -84,7 +97,7 @@ export const PLANETS = [
     name: 'Mars',
     radius: 3390 / 20000,
     realRadius: 3390,
-    texturePath: 'textures/mars.jpg',
+    texture: marsTexture,
     rotationSpeed: 360 / (24.6 * 3600),
     rotationAxis: [0, 0.883, 0.469],
     // Elementos de Kepler
@@ -108,7 +121,7 @@ export const PLANETS = [
     name: 'Jupiter',
     radius: 69911 / 20000,
     realRadius: 69911,
-    texturePath: 'textures/jupiter.jpg',
+    texture: jupiterTexture,
     rotationSpeed: 360 / (9.9 * 3600),
     rotationAxis: [0, 0.995, 0.105],
     // Elementos de Kepler
@@ -132,7 +145,7 @@ export const PLANETS = [
     name: 'Saturn',
     radius: 58232 / 20000,
     realRadius: 58232,
-    texturePath: 'textures/saturn.jpg',
+    texture: saturnTexture,
     rotationSpeed: 360 / (10.7 * 3600),
     rotationAxis: [0, 0.868, 0.496],
     // Elementos de Kepler
@@ -156,7 +169,7 @@ export const PLANETS = [
     name: 'Uranus',
     radius: 25362 / 20000,
     realRadius: 25362,
-    texturePath: 'textures/uranus.jpg',
+    texture: uranusTexture,
     rotationSpeed: -(360 / (17.2 * 3600)),
     rotationAxis: [0, 0.174, 0.985],
     // Elementos de Kepler
@@ -180,7 +193,7 @@ export const PLANETS = [
     name: 'Neptune',
     radius: 24622 / 20000,
     realRadius: 24622,
-    texturePath: 'textures/neptune.jpg',
+    texture: neptuneTexture,
     rotationSpeed: 360 / (16.1 * 3600),
     rotationAxis: [0, 0.921, 0.389],
     // Elementos de Kepler

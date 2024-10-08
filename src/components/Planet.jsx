@@ -1,20 +1,22 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react'
+import React, { useRef, useMemo, useEffect, useCallback } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { Text, Line, useTexture } from '@react-three/drei'
+import { Text, Line, Billboard } from '@react-three/drei'
+import { animated, useSpring } from '@react-spring/three'
 import { useSpace } from '../hooks/useSpace'
 import { solveKepler } from '../utils/kepler'
 
 export function Planet(planetData) {
-  const planetRef = useRef()
   const groupRef = useRef()
-  const textRef = useRef()
-  const [hovered, setHovered] = useState(false)
+  const planetRef = useRef()
+  const planetGroupRef = useRef()
+  const labelRef = useRef()
+  const { camera } = useThree()
 
   const {
     name,
     radius,
-    texturePath,
+    texture,
     rotationSpeed,
     rotationAxis,
     semiMajorAxis,
@@ -42,16 +44,54 @@ export function Planet(planetData) {
     AU,
   } = useSpace()
 
-  const texture = useTexture(texturePath)
-
   const thisFocusedPlanet = useMemo(
     () => focusedPlanet?.name === name,
     [focusedPlanet, name]
   )
 
-  const { camera } = useThree()
+  const highDetailMaterial = useMemo(() => {
+    return thisFocusedPlanet
+      ? new THREE.MeshStandardMaterial({
+          map: texture,
+          transparent: true,
+          opacity: 1,
+        })
+      : new THREE.MeshBasicMaterial({
+          color: orbitColor,
+          transparent: true,
+          opacity: 1,
+        })
+  }, [thisFocusedPlanet, texture, orbitColor])
 
-  const deg2rad = deg => (deg * Math.PI) / 180
+  const mediumDetailMaterial = useMemo(() => {
+    return thisFocusedPlanet
+      ? new THREE.MeshStandardMaterial({
+          map: texture,
+          transparent: true,
+          opacity: 1,
+        })
+      : new THREE.MeshBasicMaterial({
+          color: orbitColor,
+          transparent: true,
+          opacity: 1,
+        })
+  }, [thisFocusedPlanet, texture, orbitColor])
+
+  const lowDetailMaterial = useMemo(() => {
+    return thisFocusedPlanet
+      ? new THREE.MeshStandardMaterial({
+          map: texture,
+          transparent: true,
+          opacity: 1,
+        })
+      : new THREE.MeshBasicMaterial({
+          color: orbitColor,
+          transparent: true,
+          opacity: 1,
+        })
+  }, [thisFocusedPlanet, texture, orbitColor])
+
+  const deg2rad = useMemo(() => deg => (deg * Math.PI) / 180, [])
 
   const n = useMemo(
     () => (2 * Math.PI) / (orbitalPeriod * 86400),
@@ -63,7 +103,7 @@ export function Planet(planetData) {
     [rotationAxis]
   )
 
-  const [keplerElements, setKeplerElements] = useState({
+  const keplerElementsRef = useRef({
     semiMajorAxis,
     eccentricity,
     inclination,
@@ -73,14 +113,14 @@ export function Planet(planetData) {
   })
 
   useEffect(() => {
-    setKeplerElements({
+    keplerElementsRef.current = {
       semiMajorAxis,
       eccentricity,
       inclination,
       longitudeOfAscendingNode,
       argumentOfPeriapsis,
       meanAnomalyAtEpoch,
-    })
+    }
   }, [
     semiMajorAxis,
     eccentricity,
@@ -91,30 +131,26 @@ export function Planet(planetData) {
   ])
 
   const updatedElementsRad = useMemo(() => {
+    const elements = keplerElementsRef.current
     return {
-      iRad: deg2rad(keplerElements.inclination),
-      ORad: deg2rad(keplerElements.longitudeOfAscendingNode),
-      ωRad: deg2rad(keplerElements.argumentOfPeriapsis),
-      M0Rad: deg2rad(keplerElements.meanAnomalyAtEpoch),
+      iRad: deg2rad(elements.inclination),
+      ORad: deg2rad(elements.longitudeOfAscendingNode),
+      ωRad: deg2rad(elements.argumentOfPeriapsis),
+      M0Rad: deg2rad(elements.meanAnomalyAtEpoch),
     }
-  }, [
-    keplerElements.inclination,
-    keplerElements.longitudeOfAscendingNode,
-    keplerElements.argumentOfPeriapsis,
-    keplerElements.meanAnomalyAtEpoch,
-  ])
+  }, [deg2rad])
 
   const orbitType = useMemo(() => {
-    const e = keplerElements.eccentricity
+    const e = keplerElementsRef.current.eccentricity
     if (e < 1) return 'elliptical'
     if (e === 1) return 'parabolic'
     return 'hyperbolic'
-  }, [keplerElements.eccentricity])
+  }, [])
 
   const orbitPoints = useMemo(() => {
     const points = []
     const segments = 128
-    const e = keplerElements.eccentricity
+    const e = keplerElementsRef.current.eccentricity
 
     let maxIdx = segments
     if (orbitType === 'hyperbolic') {
@@ -144,7 +180,7 @@ export function Planet(planetData) {
             Math.sqrt(1 + e) * Math.sin(E / 2),
             Math.sqrt(1 - e) * Math.cos(E / 2)
           )
-        r = keplerElements.semiMajorAxis * (1 - e * Math.cos(E))
+        r = keplerElementsRef.current.semiMajorAxis * (1 - e * Math.cos(E))
       } else if (orbitType === 'hyperbolic') {
         ν =
           2 *
@@ -152,7 +188,7 @@ export function Planet(planetData) {
             Math.sqrt(e + 1) * Math.sinh(E / 2),
             Math.sqrt(e - 1) * Math.cosh(E / 2)
           )
-        r = keplerElements.semiMajorAxis * (e * Math.cosh(E) - 1)
+        r = keplerElementsRef.current.semiMajorAxis * (e * Math.cosh(E) - 1)
       }
 
       const xOrbital = r * Math.cos(ν)
@@ -177,39 +213,77 @@ export function Planet(planetData) {
     }
 
     return points
-  }, [
-    AU,
-    orbitType,
-    keplerElements.semiMajorAxis,
-    keplerElements.eccentricity,
-    keplerElements.inclination,
-    keplerElements.longitudeOfAscendingNode,
-    keplerElements.argumentOfPeriapsis,
-    updatedElementsRad.ORad,
-    updatedElementsRad.iRad,
-    updatedElementsRad.ωRad,
-  ])
+  }, [AU, orbitType, updatedElementsRad])
 
   const textMaterial = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#ffffff' }),
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#ffffff',
+        emissive: '#ffffff',
+        emissiveIntensity: 0.5,
+        transparent: true,
+        depthTest: false,
+      }),
     []
   )
 
-  const meshMaterial = useMemo(() => {
-    if (thisFocusedPlanet) {
-      return new THREE.MeshStandardMaterial({
-        map: texture,
-        transparent: true,
-        opacity: 1,
-      })
-    } else {
-      return new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true,
-        opacity: 1,
+  const planetLOD = useMemo(() => {
+    const lod = new THREE.LOD()
+
+    const highDetailGeometry = new THREE.SphereGeometry(radius, 64, 64)
+    const highDetailMesh = new THREE.Mesh(
+      highDetailGeometry,
+      highDetailMaterial
+    )
+    lod.addLevel(highDetailMesh, 0)
+
+    const mediumDetailGeometry = new THREE.SphereGeometry(radius, 32, 32)
+    const mediumDetailMesh = new THREE.Mesh(
+      mediumDetailGeometry,
+      mediumDetailMaterial
+    )
+    lod.addLevel(mediumDetailMesh, semiMajorAxis * AU * 1.0)
+
+    const lowDetailGeometry = new THREE.SphereGeometry(radius, 16, 16)
+    const lowDetailMesh = new THREE.Mesh(lowDetailGeometry, lowDetailMaterial)
+    lod.addLevel(lowDetailMesh, semiMajorAxis * AU * 2.0)
+
+    return lod
+  }, [
+    radius,
+    highDetailMaterial,
+    mediumDetailMaterial,
+    lowDetailMaterial,
+    semiMajorAxis,
+    AU,
+  ])
+
+  const handlePlanetClick = useCallback(() => {
+    if (keplerElementsRef.current.opacity > 0.05) {
+      setFocusedPlanet({
+        ...planetData,
+        planetGroupRef,
       })
     }
-  }, [thisFocusedPlanet, texture])
+  }, [setFocusedPlanet, planetData])
+
+  const handlePointerOver = useCallback(() => {
+    if (keplerElementsRef.current.opacity > 0.05) {
+      document.body.style.cursor = 'pointer'
+    }
+  }, [])
+
+  const handlePointerOut = useCallback(() => {
+    document.body.style.cursor = 'auto'
+  }, [])
+
+  const AnimatedText = useMemo(() => animated(Text), [Text])
+
+  const [{ textOpacity, textFontSize }, api] = useSpring(() => ({
+    textOpacity: 0,
+    textFontSize: 0,
+    config: { mass: 1, tension: 170, friction: 26 },
+  }))
 
   useFrame(({ clock }, delta) => {
     if (!AU) {
@@ -220,26 +294,32 @@ export function Planet(planetData) {
     const elapsedTime = clock.getElapsedTime() * speedFactor
 
     const deltaCySimulation = (delta * speedFactor) / 86400
-
-    setKeplerElements(prev => ({
-      ...prev,
-      semiMajorAxis: prev.semiMajorAxis + semiMajorAxisRate * deltaCySimulation,
-      eccentricity: prev.eccentricity + eccentricityRate * deltaCySimulation,
-      inclination: prev.inclination + inclinationRate * deltaCySimulation,
+    keplerElementsRef.current = {
+      semiMajorAxis:
+        keplerElementsRef.current.semiMajorAxis +
+        semiMajorAxisRate * deltaCySimulation,
+      eccentricity:
+        keplerElementsRef.current.eccentricity +
+        eccentricityRate * deltaCySimulation,
+      inclination:
+        keplerElementsRef.current.inclination +
+        inclinationRate * deltaCySimulation,
       longitudeOfAscendingNode:
-        prev.longitudeOfAscendingNode +
+        keplerElementsRef.current.longitudeOfAscendingNode +
         longitudeOfAscendingNodeRate * deltaCySimulation,
       argumentOfPeriapsis:
-        prev.argumentOfPeriapsis + argumentOfPeriapsisRate * deltaCySimulation,
+        keplerElementsRef.current.argumentOfPeriapsis +
+        argumentOfPeriapsisRate * deltaCySimulation,
       meanAnomalyAtEpoch:
-        prev.meanAnomalyAtEpoch + meanAnomalyAtEpochRate * deltaCySimulation,
-    }))
+        keplerElementsRef.current.meanAnomalyAtEpoch +
+        meanAnomalyAtEpochRate * deltaCySimulation,
+    }
 
     const updatedRad = {
-      iRad: deg2rad(keplerElements.inclination),
-      ORad: deg2rad(keplerElements.longitudeOfAscendingNode),
-      ωRad: deg2rad(keplerElements.argumentOfPeriapsis),
-      M0Rad: deg2rad(keplerElements.meanAnomalyAtEpoch),
+      iRad: deg2rad(keplerElementsRef.current.inclination),
+      ORad: deg2rad(keplerElementsRef.current.longitudeOfAscendingNode),
+      ωRad: deg2rad(keplerElementsRef.current.argumentOfPeriapsis),
+      M0Rad: deg2rad(keplerElementsRef.current.meanAnomalyAtEpoch),
     }
 
     let M = updatedRad.M0Rad + n * elapsedTime
@@ -248,36 +328,34 @@ export function Planet(planetData) {
       M = elapsedTime > 0 ? M : -M
     }
 
-    const E = solveKepler(M, keplerElements.eccentricity)
+    const E = solveKepler(M, keplerElementsRef.current.eccentricity)
     if (isNaN(E)) {
       console.error(
-        `solveKepler devolvió NaN para M: ${M}, eccentricity: ${keplerElements.eccentricity}`
+        `solveKepler devolvió NaN para M: ${M}, eccentricity: ${keplerElementsRef.current.eccentricity}`
       )
       return
     }
 
     let ν, r
 
+    const { eccentricity: e } = keplerElementsRef.current
+
     if (orbitType === 'elliptical' || orbitType === 'parabolic') {
       ν =
         2 *
         Math.atan2(
-          Math.sqrt(1 + keplerElements.eccentricity) * Math.sin(E / 2),
-          Math.sqrt(1 - keplerElements.eccentricity) * Math.cos(E / 2)
+          Math.sqrt(1 + e) * Math.sin(E / 2),
+          Math.sqrt(1 - e) * Math.cos(E / 2)
         )
-      r =
-        keplerElements.semiMajorAxis *
-        (1 - keplerElements.eccentricity * Math.cos(E))
+      r = keplerElementsRef.current.semiMajorAxis * (1 - e * Math.cos(E))
     } else if (orbitType === 'hyperbolic') {
       ν =
         2 *
         Math.atan2(
-          Math.sqrt(keplerElements.eccentricity + 1) * Math.sinh(E / 2),
-          Math.sqrt(keplerElements.eccentricity - 1) * Math.cosh(E / 2)
+          Math.sqrt(e + 1) * Math.sinh(E / 2),
+          Math.sqrt(e - 1) * Math.cosh(E / 2)
         )
-      r =
-        keplerElements.semiMajorAxis *
-        (keplerElements.eccentricity * Math.cosh(E) - 1)
+      r = keplerElementsRef.current.semiMajorAxis * (e * Math.cosh(E) - 1)
     }
 
     const xOrbital = r * Math.cos(ν)
@@ -298,8 +376,10 @@ export function Planet(planetData) {
       (-sinΩ * sinω + cosΩ * cosω * cosi) * yOrbital
     const z = sinω * sini * xOrbital + cosω * sini * yOrbital
 
-    if (groupRef.current) {
-      groupRef.current.position.set(x * AU, y * AU, z * AU)
+    if (planetGroupRef.current) {
+      planetGroupRef.current.position.set(x * AU, y * AU, z * AU)
+
+      planetLOD.update(camera)
 
       if (planetRef.current) {
         planetRef.current.rotateOnAxis(
@@ -307,121 +387,123 @@ export function Planet(planetData) {
           rotationSpeed * delta * 50
         )
       }
+
+      const planetPos = planetGroupRef.current.position.clone()
+      const direction = planetPos.clone().normalize()
+      const labelOffset = radius + 5
+
+      if (labelRef.current) {
+        labelRef.current.position.copy(direction.multiplyScalar(labelOffset))
+      }
     }
 
-    if (textRef.current) {
-      textRef.current.lookAt(camera.position)
+    const planetPosition = planetGroupRef.current.position
+    const cameraPosition = camera.position
+    const distance = cameraPosition.distanceTo(planetPosition)
 
-      const planetPosition = groupRef.current.position
-      const distance = camera.position.distanceTo(planetPosition)
+    const minDistance = semiMajorAxis * AU * 4
+    const maxDistance = semiMajorAxis * AU * 8
 
-      const baseDistance = 200
-      const baseFontSize = 3
-      const minFontSize = 1.5
-      const maxFontSize = 6
-
-      let dynamicFontSize = baseFontSize * (distance / baseDistance)
-
-      dynamicFontSize = Math.max(
-        minFontSize,
-        Math.min(dynamicFontSize, maxFontSize)
+    let newOpacity = 1
+    if (distance > minDistance) {
+      newOpacity = THREE.MathUtils.clamp(
+        1 - (distance - minDistance) / (maxDistance - minDistance),
+        0,
+        1
       )
-
-      textRef.current.fontSize = dynamicFontSize
     }
+
+    keplerElementsRef.current.opacity = newOpacity
+
+    groupRef.current.traverse(child => {
+      if (child.material) {
+        child.material.opacity = THREE.MathUtils.lerp(
+          child.material.opacity,
+          newOpacity,
+          0.1
+        )
+        child.material.transparent = true
+      }
+    })
+
+    groupRef.current.visible = newOpacity > 0.05
+
+    const cameraDistance = camera.position.length()
+    const minCameraDistance = 10
+    const maxCameraDistance = 2500
+
+    const minFontSize = 1.5
+    const maxFontSize = 75
+    let fontSize = minFontSize
+
+    if (
+      cameraDistance > minCameraDistance &&
+      cameraDistance < maxCameraDistance
+    ) {
+      fontSize = THREE.MathUtils.clamp(
+        minFontSize +
+          ((cameraDistance - minCameraDistance) /
+            (maxCameraDistance - minCameraDistance)) *
+            (maxFontSize - minFontSize),
+        minFontSize,
+        maxFontSize
+      )
+    } else if (cameraDistance >= maxCameraDistance) {
+      fontSize = maxFontSize
+    }
+
+    api.start({
+      textOpacity:
+        showLabels &&
+        !thisFocusedPlanet &&
+        keplerElementsRef.current.opacity > 0.05
+          ? 1
+          : 0,
+      textFontSize: fontSize,
+    })
   })
 
-  const computedFontSize = useMemo(() => {
-    const minFontSize = 1.5
-    const calculatedSize = radius / 2
-    return Math.max(calculatedSize, minFontSize)
-  }, [radius])
-
   return (
-    <>
-      {showOrbits && (
-        <>
-          <Line
-            points={orbitPoints}
-            color={orbitColor}
-            lineWidth={1}
-            transparent
-            opacity={0.6}
-          />
+    <group ref={groupRef}>
+      <Line
+        points={orbitPoints}
+        color={orbitColor}
+        lineWidth={2}
+        transparent
+        opacity={keplerElementsRef.current.opacity}
+        visible={!thisFocusedPlanet && showOrbits}
+      />
 
-          <Line
-            points={orbitPoints}
-            color={orbitColor}
-            lineWidth={hovered ? 3 : 1}
-            transparent
-            opacity={hovered ? 1 : 0.6}
-            material={
-              new THREE.LineBasicMaterial({
-                color: orbitColor,
-                transparent: true,
-                opacity: hovered ? 1 : 0.6,
-                blending: THREE.AdditiveBlending,
-              })
-            }
-          />
-
-          <Line
-            points={orbitPoints}
-            color={'#ffffff'}
-            lineWidth={10}
-            transparent
-            opacity={0}
-            onPointerOver={() => setHovered(true)}
-            onPointerOut={() => setHovered(false)}
-            onPointerOverCapture={e => (e.object.material.cursor = 'pointer')}
-            onClick={() =>
-              setFocusedPlanet({
-                ...planetData,
-                groupRef,
-              })
-            }
-          />
-        </>
-      )}
-
-      <group ref={groupRef}>
-        <mesh
+      <group ref={planetGroupRef}>
+        <primitive
+          object={planetLOD}
           ref={planetRef}
           castShadow
           receiveShadow
-          onClick={() =>
-            setFocusedPlanet({
-              ...planetData,
-              groupRef,
-            })
-          }
-          onPointerOver={() => setHovered(true)}
-          onPointerOut={() => setHovered(false)}
-          onPointerOverCapture={e => (e.object.material.cursor = 'pointer')}>
-          <sphereGeometry args={[radius, 32, 32]} />
-          <primitive object={meshMaterial} attach='material' />
-        </mesh>
+          onClick={handlePlanetClick}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+        />
 
         {showLabels && !thisFocusedPlanet && (
-          <Text
-            ref={textRef}
-            position={[0, radius + 2, 0]}
-            fontSize={computedFontSize}
-            onClick={() =>
-              setFocusedPlanet({
-                ...planetData,
-                groupRef,
-              })
-            }
-            onPointerOver={() => setHovered(true)}
-            onPointerOut={() => setHovered(false)}
-            anchorX='center'
-            anchorY='middle'
-            material={textMaterial}>
-            {name}
-          </Text>
+          <Billboard>
+            <AnimatedText
+              ref={labelRef}
+              position={[0, 0, 0]}
+              fontSize={textFontSize}
+              renderOrder={999}
+              onClick={handlePlanetClick}
+              onPointerOver={handlePointerOver}
+              onPointerOut={handlePointerOut}
+              anchorX='center'
+              anchorY='middle'
+              material={textMaterial}
+              opacity={textOpacity}>
+              {name}
+            </AnimatedText>
+          </Billboard>
         )}
       </group>
-    </>
+    </group>
   )
 }

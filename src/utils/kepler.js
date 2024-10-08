@@ -4,24 +4,22 @@ export function solveKepler(M, e, tolerance = 1e-6, maxIterations = 100) {
   let iterations = 0
 
   if (e < 1) {
-    E = M < Math.PI ? M + e * 0.05 : M - e * 0.05
+    E = M + (e * Math.sin(M)) / (1 - Math.sin(M + e))
 
-    do {
+    while (iterations < maxIterations) {
       const sinE = Math.sin(E)
-      const cosE = Math.cos(E)
       const f = E - e * sinE - M
-      const fPrime = 1 - e * cosE
-      const fDoublePrime = e * sinE
+      const fPrime = 1 - e * Math.cos(E)
 
-      const numerator = 2 * f * fPrime
-      const denominator = 2 * fPrime ** 2 - f * fDoublePrime
-      delta = numerator / denominator
+      delta = f / fPrime
       E -= delta
       iterations++
-    } while (Math.abs(delta) > tolerance && iterations < maxIterations)
+
+      if (Math.abs(delta) < tolerance) break
+    }
 
     if (iterations === maxIterations) {
-      console.warn('solveKepler: No convergió para órbita elíptica')
+      console.warn('solveKepler: No convergence for elliptical orbit')
     }
   } else if (e > 1) {
     const sign = M >= 0 ? 1 : -1
@@ -29,31 +27,27 @@ export function solveKepler(M, e, tolerance = 1e-6, maxIterations = 100) {
 
     E = Math.log(absM / e + 1.8)
 
-    do {
+    while (iterations < maxIterations) {
       const sinhE = Math.sinh(E)
-      const coshE = Math.cosh(E)
       const f = e * sinhE - E - absM
-      const fPrime = e * coshE - 1
-      const fDoublePrime = e * sinhE
+      const fPrime = e * Math.cosh(E) - 1
 
-      const numerator = 2 * f * fPrime
-      const denominator = 2 * fPrime ** 2 - f * fDoublePrime
-      delta = numerator / denominator
+      delta = f / fPrime
       E -= delta
       iterations++
-    } while (Math.abs(delta) > tolerance && iterations < maxIterations)
+
+      if (Math.abs(delta) < tolerance) break
+    }
 
     E = sign * E
 
     if (iterations === maxIterations) {
-      console.warn('solveKepler: No convergió para órbita hiperbólica')
+      console.warn('solveKepler: No convergence for hyperbolic orbit')
     }
   } else {
-    console.warn(
-      'solveKepler: Órbitas parabólicas (e=1) no están completamente soportadas'
-    )
+    console.warn('solveKepler: Parabolic orbits (e=1) are not fully supported')
     throw new Error(
-      'Órbitas parabólicas (e=1) no están soportadas en esta implementación.'
+      'Parabolic orbits (e=1) are not supported in this implementation.'
     )
   }
 
