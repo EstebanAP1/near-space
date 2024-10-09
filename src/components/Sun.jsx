@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { SUN } from '../data/spaceData'
 import { useSpace } from '../hooks/useSpace'
 import { useCallback } from 'react'
+import { useState } from 'react'
 
 export function Sun() {
   const sunRef = useRef()
@@ -21,24 +22,23 @@ export function Sun() {
     [focusedPlanet, SUN.name]
   )
 
-  const meshMaterial = useMemo(() => {
-    if (thisFocusedPlanet) {
-      return new THREE.MeshStandardMaterial({
-        map: SUN.texture,
-        emissive: SUN.color,
-        emissiveIntensity: 0.5,
-        transparent: false,
-        opacity: 1,
-      })
-    } else {
-      return new THREE.MeshStandardMaterial({
-        color: SUN.color,
-        emissive: SUN.color,
-        transparent: false,
-        opacity: 1,
-      })
-    }
-  }, [thisFocusedPlanet])
+  const meshBasicMaterial = useMemo(() => {
+    return new THREE.MeshBasicMaterial({
+      color: SUN.color,
+      transparent: false,
+      opacity: 1,
+    })
+  })
+
+  const MeshStandardMaterial = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      map: SUN.texture,
+      emissive: SUN.color,
+      emissiveIntensity: 0.5,
+      transparent: false,
+      opacity: 1,
+    })
+  })
 
   useFrame((state, delta) => {
     if (sunRef.current) {
@@ -46,6 +46,15 @@ export function Sun() {
         rotationAxisVector,
         delta * SUN.rotationSpeed * 170
       )
+
+      const sunPosition = sunRef.current.position
+      const cameraPosition = camera.position
+      const distance = cameraPosition.distanceTo(sunPosition)
+
+      const minDistace = 40
+
+      sunRef.current.material =
+        distance <= minDistace ? MeshStandardMaterial : meshBasicMaterial
     }
   })
 
@@ -75,7 +84,7 @@ export function Sun() {
         onPointerOut={handlePointerOut}
         opacity={focusedPlanet?.name === 'Sun' ? 1 : 0.8}>
         <sphereGeometry args={[SUN.radius, 32, 32]} />
-        <primitive object={meshMaterial} attach='material' />
+        <primitive object={meshBasicMaterial} attach='material' />
       </mesh>
 
       <pointLight

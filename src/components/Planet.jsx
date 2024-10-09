@@ -50,46 +50,20 @@ export function Planet(planetData) {
   )
 
   const highDetailMaterial = useMemo(() => {
-    return thisFocusedPlanet
-      ? new THREE.MeshStandardMaterial({
-          map: texture,
-          transparent: true,
-          opacity: 1,
-        })
-      : new THREE.MeshBasicMaterial({
-          color: orbitColor,
-          transparent: true,
-          opacity: 1,
-        })
-  }, [thisFocusedPlanet, texture, orbitColor])
+    return new THREE.MeshStandardMaterial({
+      map: texture,
+      transparent: true,
+      opacity: 1,
+    })
+  }, [texture])
 
   const mediumDetailMaterial = useMemo(() => {
-    return thisFocusedPlanet
-      ? new THREE.MeshStandardMaterial({
-          map: texture,
-          transparent: true,
-          opacity: 1,
-        })
-      : new THREE.MeshBasicMaterial({
-          color: orbitColor,
-          transparent: true,
-          opacity: 1,
-        })
-  }, [thisFocusedPlanet, texture, orbitColor])
-
-  const lowDetailMaterial = useMemo(() => {
-    return thisFocusedPlanet
-      ? new THREE.MeshStandardMaterial({
-          map: texture,
-          transparent: true,
-          opacity: 1,
-        })
-      : new THREE.MeshBasicMaterial({
-          color: orbitColor,
-          transparent: true,
-          opacity: 1,
-        })
-  }, [thisFocusedPlanet, texture, orbitColor])
+    return new THREE.MeshBasicMaterial({
+      color: orbitColor,
+      transparent: true,
+      opacity: 1,
+    })
+  }, [orbitColor])
 
   const deg2rad = useMemo(() => deg => (deg * Math.PI) / 180, [])
 
@@ -220,9 +194,8 @@ export function Planet(planetData) {
       new THREE.MeshStandardMaterial({
         color: '#ffffff',
         emissive: '#ffffff',
-        emissiveIntensity: 0.5,
+        emissiveIntensity: 0.2,
         transparent: true,
-        depthTest: false,
       }),
     []
   )
@@ -230,33 +203,22 @@ export function Planet(planetData) {
   const planetLOD = useMemo(() => {
     const lod = new THREE.LOD()
 
-    const highDetailGeometry = new THREE.SphereGeometry(radius, 64, 64)
+    const highDetailGeometry = new THREE.SphereGeometry(radius, 32, 32)
     const highDetailMesh = new THREE.Mesh(
       highDetailGeometry,
       highDetailMaterial
     )
     lod.addLevel(highDetailMesh, 0)
 
-    const mediumDetailGeometry = new THREE.SphereGeometry(radius, 32, 32)
+    const mediumDetailGeometry = new THREE.SphereGeometry(radius, 16, 16)
     const mediumDetailMesh = new THREE.Mesh(
       mediumDetailGeometry,
       mediumDetailMaterial
     )
     lod.addLevel(mediumDetailMesh, semiMajorAxis * AU * 1.0)
 
-    const lowDetailGeometry = new THREE.SphereGeometry(radius, 16, 16)
-    const lowDetailMesh = new THREE.Mesh(lowDetailGeometry, lowDetailMaterial)
-    lod.addLevel(lowDetailMesh, semiMajorAxis * AU * 2.0)
-
     return lod
-  }, [
-    radius,
-    highDetailMaterial,
-    mediumDetailMaterial,
-    lowDetailMaterial,
-    semiMajorAxis,
-    AU,
-  ])
+  }, [radius, highDetailMaterial, mediumDetailMaterial, semiMajorAxis, AU])
 
   const handlePlanetClick = useCallback(() => {
     if (keplerElementsRef.current.opacity > 0.05) {
@@ -282,7 +244,7 @@ export function Planet(planetData) {
   const [{ textOpacity, textFontSize }, api] = useSpring(() => ({
     textOpacity: 0,
     textFontSize: 0,
-    config: { mass: 1, tension: 170, friction: 26 },
+    config: { mass: 0, tension: 0, friction: 0 },
   }))
 
   useFrame(({ clock }, delta) => {
@@ -388,9 +350,43 @@ export function Planet(planetData) {
         )
       }
 
+      const cameraDistance = camera.position.length()
+      const minCameraDistance = 10
+      const maxCameraDistance = 2500
+
+      const minFontSize = 1.5
+      const maxFontSize = 100
+      let fontSize = minFontSize
+
+      if (
+        cameraDistance > minCameraDistance &&
+        cameraDistance < maxCameraDistance
+      ) {
+        fontSize = THREE.MathUtils.clamp(
+          minFontSize +
+            ((cameraDistance - minCameraDistance) /
+              (maxCameraDistance - minCameraDistance)) *
+              (maxFontSize - minFontSize),
+          minFontSize,
+          maxFontSize
+        )
+      } else if (cameraDistance >= maxCameraDistance) {
+        fontSize = maxFontSize
+      }
+
+      api.start({
+        textOpacity:
+          showLabels &&
+          !thisFocusedPlanet &&
+          keplerElementsRef.current.opacity > 0.05
+            ? 1
+            : 0,
+        textFontSize: fontSize,
+      })
+
       const planetPos = planetGroupRef.current.position.clone()
       const direction = planetPos.clone().normalize()
-      const labelOffset = radius + 5
+      const labelOffset = radius + fontSize + 2
 
       if (labelRef.current) {
         labelRef.current.position.copy(direction.multiplyScalar(labelOffset))
@@ -427,40 +423,6 @@ export function Planet(planetData) {
     })
 
     groupRef.current.visible = newOpacity > 0.05
-
-    const cameraDistance = camera.position.length()
-    const minCameraDistance = 10
-    const maxCameraDistance = 2500
-
-    const minFontSize = 1.5
-    const maxFontSize = 100
-    let fontSize = minFontSize
-
-    if (
-      cameraDistance > minCameraDistance &&
-      cameraDistance < maxCameraDistance
-    ) {
-      fontSize = THREE.MathUtils.clamp(
-        minFontSize +
-          ((cameraDistance - minCameraDistance) /
-            (maxCameraDistance - minCameraDistance)) *
-            (maxFontSize - minFontSize),
-        minFontSize,
-        maxFontSize
-      )
-    } else if (cameraDistance >= maxCameraDistance) {
-      fontSize = maxFontSize
-    }
-
-    api.start({
-      textOpacity:
-        showLabels &&
-        !thisFocusedPlanet &&
-        keplerElementsRef.current.opacity > 0.05
-          ? 1
-          : 0,
-      textFontSize: fontSize,
-    })
   })
 
   return (
@@ -470,7 +432,6 @@ export function Planet(planetData) {
         color={orbitColor}
         lineWidth={2}
         transparent
-        opacity={keplerElementsRef.current.opacity}
         visible={!thisFocusedPlanet && showOrbits}
       />
 
@@ -491,7 +452,6 @@ export function Planet(planetData) {
               ref={labelRef}
               position={[0, 0, 0]}
               fontSize={textFontSize}
-              renderOrder={999}
               onClick={handlePlanetClick}
               onPointerOver={handlePointerOver}
               onPointerOut={handlePointerOut}
