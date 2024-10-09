@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
 
-export default function Starfield({ numStars = 3000, size = 0.5 }) {
+export default function Starfield({ numStars = 500, size = 0.5 }) {
   const [positions, colors, sizes] = useMemo(() => {
     const positions = []
     const colors = []

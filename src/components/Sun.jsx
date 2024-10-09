@@ -4,13 +4,15 @@ import * as THREE from 'three'
 import { SUN } from '../data/spaceData'
 import { useSpace } from '../hooks/useSpace'
 import { useCallback } from 'react'
-import { useState } from 'react'
+import { animated, useSpring } from '@react-spring/three'
+import { Billboard, Text } from '@react-three/drei'
 
 export function Sun() {
   const sunRef = useRef()
+  const labelRef = useRef()
 
   const { camera } = useThree()
-  const { focusedPlanet, setFocusedPlanet } = useSpace()
+  const { focusedPlanet, setFocusedPlanet, showLabels } = useSpace()
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(...SUN.rotationAxis).normalize(),
@@ -40,6 +42,26 @@ export function Sun() {
     })
   })
 
+  const textMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#ffffff',
+        emissive: '#ffffff',
+        emissiveIntensity: 0.2,
+        transparent: true,
+        depthTest: false,
+      }),
+    []
+  )
+
+  const AnimatedText = useMemo(() => animated(Text), [Text])
+
+  const [{ textOpacity, textFontSize }, api] = useSpring(() => ({
+    textOpacity: 0,
+    textFontSize: 0,
+    config: { mass: 0, tension: 0, friction: 0 },
+  }))
+
   useFrame((state, delta) => {
     if (sunRef.current) {
       sunRef.current.rotateOnAxis(
@@ -51,10 +73,46 @@ export function Sun() {
       const cameraPosition = camera.position
       const distance = cameraPosition.distanceTo(sunPosition)
 
-      const minDistace = 40
+      const minMaterialDistance = 40
 
       sunRef.current.material =
-        distance <= minDistace ? MeshStandardMaterial : meshBasicMaterial
+        distance <= minMaterialDistance
+          ? MeshStandardMaterial
+          : meshBasicMaterial
+
+      const minCameraDistance = 10
+      const maxCameraDistance = 2500
+
+      const minFontSize = 1.5
+      const maxFontSize = 100
+      let fontSize = minFontSize
+
+      if (distance > minCameraDistance && distance < maxCameraDistance) {
+        fontSize = THREE.MathUtils.clamp(
+          minFontSize +
+            ((distance - minCameraDistance) /
+              (maxCameraDistance - minCameraDistance)) *
+              (maxFontSize - minFontSize),
+          minFontSize,
+          maxFontSize
+        )
+      } else if (distance >= maxCameraDistance) {
+        fontSize = maxFontSize
+      }
+
+      api.start({
+        textOpacity:
+          showLabels && !thisFocusedPlanet && sunRef.current.opacity > 0.05
+            ? 1
+            : 0,
+        textFontSize: fontSize,
+      })
+
+      const labelOffset = SUN.radius + fontSize
+
+      if (labelRef.current) {
+        labelRef.current.position.copy(new THREE.Vector3(0, labelOffset, 0))
+      }
     }
   })
 
@@ -95,6 +153,24 @@ export function Sun() {
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
+
+      {showLabels && !thisFocusedPlanet && (
+        <Billboard>
+          <AnimatedText
+            ref={labelRef}
+            position={[0, 0, 0]}
+            fontSize={textFontSize}
+            onClick={handleClick}
+            onPointerOver={handlePointerOver}
+            onPointerOut={handlePointerOut}
+            anchorX='center'
+            anchorY='middle'
+            material={textMaterial}
+            opacity={textOpacity}>
+            {SUN.name}
+          </AnimatedText>
+        </Billboard>
+      )}
     </>
   )
 }

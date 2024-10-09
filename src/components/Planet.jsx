@@ -49,22 +49,6 @@ export function Planet(planetData) {
     [focusedPlanet, name]
   )
 
-  const highDetailMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      map: texture,
-      transparent: true,
-      opacity: 1,
-    })
-  }, [texture])
-
-  const mediumDetailMaterial = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
-      color: orbitColor,
-      transparent: true,
-      opacity: 1,
-    })
-  }, [orbitColor])
-
   const deg2rad = useMemo(() => deg => (deg * Math.PI) / 180, [])
 
   const n = useMemo(
@@ -188,6 +172,22 @@ export function Planet(planetData) {
 
     return points
   }, [AU, orbitType, updatedElementsRad])
+
+  const highDetailMaterial = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      map: texture,
+      transparent: true,
+      opacity: 1,
+    })
+  }, [texture])
+
+  const mediumDetailMaterial = useMemo(() => {
+    return new THREE.MeshBasicMaterial({
+      color: orbitColor,
+      transparent: true,
+      opacity: 1,
+    })
+  }, [orbitColor])
 
   const textMaterial = useMemo(
     () =>
@@ -418,6 +418,11 @@ export function Planet(planetData) {
           newOpacity,
           0.1
         )
+        if (child.type === 'Line2') {
+          if (child.material.opacity > 0.4) {
+            child.material.opacity = 0.4
+          }
+        }
         child.material.transparent = true
       }
     })
