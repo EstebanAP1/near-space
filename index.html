@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link id="favicon" rel="icon" type="image/x-icon" href="/faviconW.ico" />
+    <link id="favicon" rel="icon" type="image/svg+xml" href="/faviconW.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NearSpace</title>
     <script>
@@ -11,18 +11,13 @@
         const isDarkMode = window.matchMedia(
           '(prefers-color-scheme: dark)'
         ).matches
-
         if (isDarkMode) {
-          favicon.href = '/faviconW.ico' // Cambia a favicon oscuro
+          favicon.href = '/faviconW.ico'
         } else {
-          favicon.href = '/faviconD.ico' // Cambia a favicon claro
+          favicon.href = '/faviconD.ico'
         }
       }
-
-      // Llama a la función al cargar la página
       updateFavicon()
-
-      // Escucha cambios en el tema
       window
         .matchMedia('(prefers-color-scheme: dark)')
         .addEventListener('change', updateFavicon)
