@@ -17,7 +17,7 @@ During the development of the NASA Space Challenger App, two powerful tools were
 2. **ChatGPT**:
    - We used **ChatGPT** to assist in generating the logic for solving **Kepler's equation** and other orbital calculations. It also contributed to design decisions and general programming tasks, including 3D designs in Three.js and overall architecture guidance.
 
-> These tools were used to improve the development process and are not features exposed to the end users of the application.
+> These tools were used to improve the development process
 
 ## Dependencies
 
