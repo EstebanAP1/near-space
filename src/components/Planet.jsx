@@ -9,6 +9,7 @@ import { solveKepler } from '../utils/kepler'
 export function Planet(planetData) {
   const groupRef = useRef()
   const planetRef = useRef()
+  const ringRef = useRef()
   const planetGroupRef = useRef()
   const labelRef = useRef()
   const { camera } = useThree()
@@ -33,6 +34,7 @@ export function Planet(planetData) {
     meanAnomalyAtEpochRate,
     orbitalPeriod,
     orbitColor,
+    rings,
   } = planetData
 
   const {
@@ -173,14 +175,6 @@ export function Planet(planetData) {
     return points
   }, [AU, orbitType, updatedElementsRad])
 
-  const highDetailMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      map: texture,
-      transparent: true,
-      opacity: 1,
-    })
-  }, [texture])
-
   const mediumDetailMaterial = useMemo(() => {
     return new THREE.MeshBasicMaterial({
       color: orbitColor,
@@ -188,6 +182,18 @@ export function Planet(planetData) {
       opacity: 1,
     })
   }, [orbitColor])
+
+  const highDetailMaterial = useMemo(
+    () =>
+      texture
+        ? new THREE.MeshStandardMaterial({
+            map: texture,
+            transparent: true,
+            opacity: 1,
+          })
+        : mediumDetailMaterial,
+    [texture]
+  )
 
   const textMaterial = useMemo(
     () =>
@@ -199,6 +205,56 @@ export function Planet(planetData) {
       }),
     []
   )
+
+  // Dentro de tu componente Planet
+
+  const highDetailRingMaterial = useMemo(() => {
+    if (!rings) return null
+
+    // Crear un canvas para generar un gradiente de transparencia
+    const size = 512
+    const canvas = document.createElement('canvas')
+    canvas.width = size
+    canvas.height = size
+    const context = canvas.getContext('2d')
+
+    // Crear un gradiente radial
+    const gradient = context.createRadialGradient(
+      size / 2,
+      size / 2,
+      rings.innerRadius * size,
+      size / 2,
+      size / 2,
+      rings.outerRadius * size
+    )
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)')
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+
+    // Dibujar el gradiente en el canvas
+    context.fillStyle = gradient
+    context.fillRect(0, 0, size, size)
+
+    // Crear una textura a partir del canvas
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.needsUpdate = true
+
+    return new THREE.MeshStandardMaterial({
+      map: texture,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.8,
+    })
+  }, [rings])
+
+  const mediumDetailRingMaterial = useMemo(() => {
+    return new THREE.MeshBasicMaterial({
+      color: orbitColor,
+      transparent: true,
+      opacity: 1,
+    })
+  }, [orbitColor])
+
+  // Luego, usa ringMaterial para crear los anillos como se explicó anteriormente
 
   const planetLOD = useMemo(() => {
     const lod = new THREE.LOD()
@@ -215,10 +271,46 @@ export function Planet(planetData) {
       mediumDetailGeometry,
       mediumDetailMaterial
     )
-    lod.addLevel(mediumDetailMesh, semiMajorAxis * AU * 1.0)
+    lod.addLevel(mediumDetailMesh, semiMajorAxis * AU * 0.5)
 
     return lod
   }, [radius, highDetailMaterial, mediumDetailMaterial, semiMajorAxis, AU])
+
+  const ringLod = useMemo(() => {
+    if (!rings) return null
+    const lod = new THREE.LOD()
+
+    const highDetailRingGeometry = new THREE.RingGeometry(
+      rings.innerRadius,
+      rings.outerRadius,
+      64
+    ).rotateX(Math.PI / 2)
+    const highDetailRing = new THREE.Mesh(
+      highDetailRingGeometry,
+      highDetailRingMaterial
+    )
+    lod.addLevel(highDetailRing, 0)
+
+    const mediumDetailRingGeometry = new THREE.RingGeometry(
+      rings.innerRadius,
+      rings.outerRadius,
+      32
+    ).rotateX(Math.PI / 2)
+    const mediumDetailRing = new THREE.Mesh(
+      mediumDetailRingGeometry,
+      mediumDetailRingMaterial
+    )
+
+    lod.addLevel(mediumDetailRing, semiMajorAxis * AU * 0.5)
+
+    return lod
+  }, [
+    rings,
+    highDetailRingMaterial,
+    mediumDetailRingMaterial,
+    semiMajorAxis,
+    AU,
+  ])
 
   const handlePlanetClick = useCallback(() => {
     if (keplerElementsRef.current.opacity > 0.05) {
@@ -343,11 +435,37 @@ export function Planet(planetData) {
 
       planetLOD.update(camera)
 
+      const orbitalEuler = new THREE.Euler(
+        updatedRad.iRad, // Inclinación
+        updatedRad.ORad, // Longitud del nodo ascendente
+        updatedRad.ωRad, // Argumento del periapsis
+        'XYZ'
+      )
+      const orbitalQuaternion = new THREE.Quaternion().setFromEuler(
+        orbitalEuler
+      )
+
+      // Rotar el eje de rotación original
+      const rotatedRotationAxis = rotationAxisVector
+        .clone()
+        .applyQuaternion(orbitalQuaternion)
+
       if (planetRef.current) {
         planetRef.current.rotateOnAxis(
-          rotationAxisVector,
-          rotationSpeed * delta * 50
+          rotatedRotationAxis,
+          rotationSpeed * delta
         )
+      }
+
+      if (rings) {
+        ringLod.update(camera)
+
+        if (ringRef.current) {
+          ringRef.current.rotateOnAxis(
+            new THREE.Vector3(...rings.rotationAxis).normalize(),
+            rings.rotationSpeed * delta // Eliminado el multiplicador * 50
+          )
+        }
       }
 
       const cameraDistance = camera.position.length()
@@ -391,43 +509,43 @@ export function Planet(planetData) {
       if (labelRef.current) {
         labelRef.current.position.copy(direction.multiplyScalar(labelOffset))
       }
-    }
 
-    const planetPosition = planetGroupRef.current.position
-    const cameraPosition = camera.position
-    const distance = cameraPosition.distanceTo(planetPosition)
+      const planetPosition = planetGroupRef.current.position
+      const cameraPosition = camera.position
+      const distance = cameraPosition.distanceTo(planetPosition)
 
-    const minDistance = semiMajorAxis * AU * 4
-    const maxDistance = semiMajorAxis * AU * 15
+      const minDistance = semiMajorAxis * AU * 4
+      const maxDistance = semiMajorAxis * AU * 15
 
-    let newOpacity = 1
-    if (distance > minDistance) {
-      newOpacity = THREE.MathUtils.clamp(
-        1 - (distance - minDistance) / (maxDistance - minDistance),
-        0,
-        1
-      )
-    }
-
-    keplerElementsRef.current.opacity = newOpacity
-
-    groupRef.current.traverse(child => {
-      if (child.material) {
-        child.material.opacity = THREE.MathUtils.lerp(
-          child.material.opacity,
-          newOpacity,
-          0.1
+      let newOpacity = 1
+      if (distance > minDistance) {
+        newOpacity = THREE.MathUtils.clamp(
+          1 - (distance - minDistance) / (maxDistance - minDistance),
+          0,
+          1
         )
-        if (child.type === 'Line2') {
-          if (child.material.opacity > 0.4) {
-            child.material.opacity = 0.4
-          }
-        }
-        child.material.transparent = true
       }
-    })
 
-    groupRef.current.visible = newOpacity > 0.05
+      keplerElementsRef.current.opacity = newOpacity
+
+      groupRef.current.traverse(child => {
+        if (child.material) {
+          child.material.opacity = THREE.MathUtils.lerp(
+            child.material.opacity,
+            newOpacity,
+            0.1
+          )
+          if (child.type === 'Line2') {
+            if (child.material.opacity > 0.4) {
+              child.material.opacity = 0.4
+            }
+          }
+          child.material.transparent = true
+        }
+      })
+
+      groupRef.current.visible = newOpacity > 0.05
+    }
   })
 
   return (
@@ -440,16 +558,21 @@ export function Planet(planetData) {
         visible={!thisFocusedPlanet && showOrbits}
       />
 
-      <group ref={planetGroupRef}>
+      <group
+        ref={planetGroupRef}
+        onClick={handlePlanetClick}
+        onPointerMove={handlePointerOver}
+        onPointerOut={handlePointerOut}>
         <primitive
           object={planetLOD}
           ref={planetRef}
           castShadow
           receiveShadow
-          onClick={handlePlanetClick}
-          onPointerOver={handlePointerOver}
-          onPointerOut={handlePointerOut}
         />
+
+        {rings && (
+          <primitive object={ringLod} ref={ringRef} castShadow receiveShadow />
+        )}
 
         {showLabels && !thisFocusedPlanet && (
           <Billboard>
@@ -457,9 +580,6 @@ export function Planet(planetData) {
               ref={labelRef}
               position={[0, 0, 0]}
               fontSize={textFontSize}
-              onClick={handlePlanetClick}
-              onPointerOver={handlePointerOver}
-              onPointerOut={handlePointerOut}
               anchorX='center'
               anchorY='middle'
               material={textMaterial}

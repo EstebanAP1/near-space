@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { SUN } from '../data/spaceData'
+import { SUN } from '../data/sun'
 import { useSpace } from '../hooks/useSpace'
 import { useCallback } from 'react'
 import { animated, useSpring } from '@react-spring/three'
