@@ -17,7 +17,7 @@ During the development of the NASA Space Challenger App, two powerful tools were
 2. **ChatGPT**:
    - We used **ChatGPT** to assist in generating the logic for solving **Kepler's equation** and other orbital calculations. It also contributed to design decisions and general programming tasks, including 3D designs in Three.js and overall architecture guidance.
 
-> These tools were used to improve the development process and are not features exposed to the end users of the application.
+> These tools were used to improve the development process
 
 ## Dependencies
 
@@ -86,13 +86,13 @@ The orbits of planets and NEOs are based on **Kepler's laws of planetary motion*
 Users can switch between:
 
 - **Orbit Mode**: Move around the objects and zoom in/out to get a better view.
-- **Focus Mode**: Get a first-person view that follows the path of the space objects as they move through their simulated orbits.
+- **Ship Mode**: Get a first-person view that follows the path of the space objects as they move through their simulated orbits.
 
 ## Usage
 
 - In `orbit` mode, you can zoom in and out and pan around the objects.
-- In `focus` mode, you follow a space object from a first-person perspective, allowing you to experience its journey through space.
+- In `ship` mode, you follow a space object from a first-person perspective, allowing you to experience its journey through space.
 
 ## Contributing
 
-We welcome contributions to improve the NASA Space Challenger App. Feel free to submit pull requests or open issues on GitHub.
+We welcome contributions to improve our Web Orrery. Feel free to submit pull requests or open issues on GitHub.
