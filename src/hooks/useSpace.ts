@@ -1,6 +1,7 @@
 import { create } from 'zustand'
+import { SpaceState } from '../types'
 
-export const useSpace = create((set, get) => ({
+export const useSpace = create<SpaceState>((set, get) => ({
   focusedPlanet: null,
   setFocusedPlanet: planet => {
     if (!planet) {

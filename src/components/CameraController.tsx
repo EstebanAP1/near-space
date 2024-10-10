@@ -1,13 +1,16 @@
-import React, { useRef } from 'react'
+import { useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { FirstPersonControls, OrbitControls } from '@react-three/drei'
 import { Vector3 } from 'three'
 import { useSpace } from '../hooks/useSpace'
+import { OrbitControls as ThreeOrbitControls, FirstPersonControls as ThreeFirstPersonControls } from 'three-stdlib'
 
 export function CameraController() {
-  const orbitRef = useRef()
-  const shipRef = useRef()
+  const orbitRef = useRef<ThreeOrbitControls>(null)
+  const shipRef = useRef<ThreeFirstPersonControls>(null)
+
   const { camera } = useThree()
+
   const cameraType = useSpace(state => state.camera)
   const focusedPlanet = useSpace(state => state.focusedPlanet)
 
@@ -24,7 +27,7 @@ export function CameraController() {
 
   useFrame(() => {
     if (cameraType === 'orbit') {
-      if (focusedPlanet && focusedPlanet.planetGroupRef.current) {
+      if (focusedPlanet && focusedPlanet.ref.current) {
         if (!isCameraStored.current) {
           previousCameraPosition.current.copy(camera.position)
           if (orbitRef.current) {
@@ -33,8 +36,7 @@ export function CameraController() {
           isCameraStored.current = true
         }
 
-        const planetPosition =
-          focusedPlanet.planetGroupRef.current.position.clone()
+        const planetPosition = focusedPlanet.ref.current.position.clone()
 
         const radius = focusedPlanet.radius || 1
         let calculatedDistance = baseDistance * Math.log(radius)

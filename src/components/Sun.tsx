@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { SUN } from '../data/sun'
@@ -8,8 +8,8 @@ import { animated, useSpring } from '@react-spring/three'
 import { Billboard, Text } from '@react-three/drei'
 
 export function Sun() {
-  const sunRef = useRef()
-  const labelRef = useRef()
+  const sunRef = useRef<THREE.Mesh | null>(null)
+  const labelRef = useRef<THREE.Mesh | null>(null)
 
   const { camera } = useThree()
   const { focusedPlanet, setFocusedPlanet, showLabels } = useSpace()
@@ -30,7 +30,7 @@ export function Sun() {
       transparent: false,
       opacity: 1,
     })
-  })
+  }, [SUN])
 
   const MeshStandardMaterial = useMemo(() => {
     return new THREE.MeshStandardMaterial({
@@ -40,7 +40,7 @@ export function Sun() {
       transparent: false,
       opacity: 1,
     })
-  })
+  }, [SUN])
 
   const textMaterial = useMemo(
     () =>
@@ -56,13 +56,13 @@ export function Sun() {
 
   const AnimatedText = useMemo(() => animated(Text), [Text])
 
-  const [{ textOpacity, textFontSize }, api] = useSpring(() => ({
+  const [{ textFontSize }, api] = useSpring(() => ({
     textOpacity: 0,
     textFontSize: 0,
     config: { mass: 0, tension: 0, friction: 0 },
   }))
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (sunRef.current) {
       sunRef.current.rotateOnAxis(
         rotationAxisVector,
@@ -101,10 +101,6 @@ export function Sun() {
       }
 
       api.start({
-        textOpacity:
-          showLabels && !thisFocusedPlanet && sunRef.current.opacity > 0.05
-            ? 1
-            : 0,
         textFontSize: fontSize,
       })
 
@@ -119,7 +115,7 @@ export function Sun() {
   const handleClick = useCallback(() => {
     setFocusedPlanet({
       ...SUN,
-      planetGroupRef: sunRef,
+      ref: sunRef,
     })
   }, [setFocusedPlanet, SUN])
 
@@ -139,8 +135,7 @@ export function Sun() {
         castShadow
         onClick={handleClick}
         onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}
-        opacity={focusedPlanet?.name === 'Sun' ? 1 : 0.8}>
+        onPointerOut={handlePointerOut}>
         <sphereGeometry args={[SUN.radius, 32, 32]} />
         <primitive object={meshBasicMaterial} attach='material' />
       </mesh>
@@ -165,8 +160,7 @@ export function Sun() {
             onPointerOut={handlePointerOut}
             anchorX='center'
             anchorY='middle'
-            material={textMaterial}
-            opacity={textOpacity}>
+            material={textMaterial}>
             {SUN.name}
           </AnimatedText>
         </Billboard>

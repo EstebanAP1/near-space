@@ -1,15 +1,16 @@
-import React, { useRef, useMemo } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { solveKepler } from '../utils/kepler'
 import { useSpace } from '../hooks/useSpace'
 import { Line, Text } from '@react-three/drei'
+import { NEOProps } from '../types'
 
-export function NEO({ data }) {
+export function NEO({ data }: { data: NEOProps }) {
   const { camera } = useThree()
   const { speedFactor, showNEOsLabels, showNEOsOrbits, AU } = useSpace()
-  const neoRef = useRef()
-  const textRef = useRef()
+  const neoRef = useRef<THREE.Mesh | null>(null)
+  const textRef = useRef<THREE.Mesh | null>(null)
 
   const {
     name,
@@ -45,7 +46,7 @@ export function NEO({ data }) {
     [orbital_period]
   )
 
-  const deg2rad = useMemo(() => deg => (deg * Math.PI) / 180, [])
+  const deg2rad = useMemo(() => (deg: number) => (deg * Math.PI) / 180, [])
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(0, 1, 0).normalize(),
@@ -83,7 +84,8 @@ export function NEO({ data }) {
         continue
       }
 
-      let ν, r
+      let ν: number = 0,
+        r: number = 0
 
       if (orbitType === 'elliptical' || orbitType === 'parabolic') {
         ν =
@@ -159,7 +161,8 @@ export function NEO({ data }) {
       return
     }
 
-    let ν, r
+    let ν: number = 0,
+      r: number = 0
 
     if (orbitType === 'elliptical' || orbitType === 'parabolic') {
       ν =
@@ -204,7 +207,8 @@ export function NEO({ data }) {
 
     if (textRef.current) {
       textRef.current.position.set(x * AU, y * AU + 0.2, z * AU)
-      textRef.current.lookAt(camera.position)
+      const cameraPosition = camera.position
+      textRef.current.lookAt(cameraPosition)
     }
   })
 

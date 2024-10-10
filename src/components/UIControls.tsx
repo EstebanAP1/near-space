@@ -1,4 +1,3 @@
-import React from 'react'
 import { useSpace } from '../hooks/useSpace'
 
 function UIControls() {

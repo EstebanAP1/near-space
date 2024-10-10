@@ -1,10 +1,11 @@
 import { useSpace } from '../hooks/useSpace'
 import { PLANET_DATA as planetDetails } from '../data/planets'
 import { useState, useEffect } from 'react'
+import { PlanetDetail } from '../types'
 
 export function PlanetDetails() {
   const { focusedPlanet, setFocusedPlanet } = useSpace()
-  const [actualPlanet, setActualPlanet] = useState(null)
+  const [actualPlanet, setActualPlanet] = useState<PlanetDetail | null>(null)
 
   useEffect(() => {
     if (focusedPlanet) {

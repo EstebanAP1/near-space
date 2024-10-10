@@ -8,8 +8,9 @@ import {
   uranusTexture,
   venusTexture,
 } from '../images/textures'
+import { Planet, PlanetDetail } from '../types'
 
-export const PLANETS = [
+export const PLANETS: Planet[] = [
   {
     name: 'Mercury',
     radius: 2440 / 20000,
@@ -210,7 +211,7 @@ export const PLANETS = [
   },
 ]
 
-export const PLANET_DETAILS = [
+export const PLANET_DETAILS: PlanetDetail[] = [
   {
     name: 'Sun',
     type: 'Star',

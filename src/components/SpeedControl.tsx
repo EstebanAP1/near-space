@@ -1,11 +1,10 @@
-import React from 'react'
 import { useSpace } from '../hooks/useSpace'
 
 function SpeedControl() {
   const speedFactor = useSpace(state => state.speedFactor)
   const setSpeedFactor = useSpace(state => state.setSpeedFactor)
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSpeedFactor(parseFloat(e.target.value))
   }
 

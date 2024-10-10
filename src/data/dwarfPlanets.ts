@@ -1,4 +1,6 @@
-export const DWARF_PLANETS = [
+import { Planet, PlanetDetail } from '../types'
+
+export const DWARF_PLANETS: Planet[] = [
   {
     name: 'Pluto',
     radius: 1188.5 / 20000, // Escalado similar a otros planetas
@@ -121,7 +123,7 @@ export const DWARF_PLANETS = [
   },
 ]
 
-export const DWARF_PLANET_DETAILS = [
+export const DWARF_PLANET_DETAILS: PlanetDetail[] = [
   {
     name: 'Pluto',
     type: 'Dwarf Planet',

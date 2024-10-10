@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import * as THREE from 'three'
 
 export default function Starfield({ numStars = 500, size = 0.5 }) {
