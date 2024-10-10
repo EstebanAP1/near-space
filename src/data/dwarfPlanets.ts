@@ -3,6 +3,7 @@ import { Planet, PlanetDetail } from '../types'
 export const DWARF_PLANETS: Planet[] = [
   {
     name: 'Pluto',
+    type: 'dwarf',
     radius: 1188.5 / 20000, // Escalado similar a otros planetas
     realRadius: 1188.5, // en km
     texture: null,
@@ -27,6 +28,7 @@ export const DWARF_PLANETS: Planet[] = [
   },
   {
     name: 'Eris',
+    type: 'dwarf',
     radius: 1163 / 20000, // Escalado
     realRadius: 1163, // en km
     texture: null,
@@ -51,6 +53,7 @@ export const DWARF_PLANETS: Planet[] = [
   },
   {
     name: 'Haumea',
+    type: 'dwarf',
     radius: 796 / 20000, // Escalado (equatorial)
     realRadius: 796, // en km (equatorial)
     texture: null,
@@ -75,6 +78,7 @@ export const DWARF_PLANETS: Planet[] = [
   },
   {
     name: 'Makemake',
+    type: 'dwarf',
     radius: 715 / 20000, // Escalado
     realRadius: 715, // en km
     texture: null,
@@ -99,6 +103,7 @@ export const DWARF_PLANETS: Planet[] = [
   },
   {
     name: 'Ceres',
+    type: 'dwarf',
     radius: 469.5 / 20000, // Escalado
     realRadius: 469.5, // en km
     texture: null,

@@ -30,11 +30,27 @@ export const useSpace = create<SpaceState>((set, get) => ({
   speedFactor: 1,
   setSpeedFactor: factor => set({ speedFactor: factor }),
 
-  showLabels: true,
-  toggleLabels: () => set(state => ({ showLabels: !state.showLabels })),
+  showPlanetLabels: true,
+  togglePlanetLabels: () =>
+    set(state => ({ showPlanetLabels: !state.showPlanetLabels })),
 
-  showOrbits: true,
-  toggleOrbits: () => set(state => ({ showOrbits: !state.showOrbits })),
+  showPlanetOrbits: true,
+  togglePlanetOrbits: () =>
+    set(state => ({ showPlanetOrbits: !state.showPlanetOrbits })),
+
+  showDwarf: true,
+  toggleDwarf: () => set(state => ({ showDwarf: !state.showDwarf })),
+
+  showDwarfLabels: true,
+  toggleDwarfLabels: () =>
+    set(state => ({ showDwarfLabels: !state.showDwarfLabels })),
+
+  showDwarfOrbits: false,
+  toggleDwarfOrbits: () =>
+    set(state => ({ showDwarfOrbits: !state.showDwarfOrbits })),
+
+  showNEOs: true,
+  toggleNEOs: () => set(state => ({ showNEOs: !state.showNEOs })),
 
   showNEOsOrbits: false,
   toggleNEOsOrbits: () =>

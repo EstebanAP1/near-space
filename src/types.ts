@@ -33,10 +33,18 @@ export interface SpaceState {
   prevSpeedFactor: number
   speedFactor: number
   setSpeedFactor: (factor: number) => void
-  showLabels: boolean
-  toggleLabels: () => void
-  showOrbits: boolean
-  toggleOrbits: () => void
+  showPlanetLabels: boolean
+  togglePlanetLabels: () => void
+  showPlanetOrbits: boolean
+  togglePlanetOrbits: () => void
+  showDwarf: boolean
+  toggleDwarf: () => void
+  showDwarfLabels: boolean
+  toggleDwarfLabels: () => void
+  showDwarfOrbits: boolean
+  toggleDwarfOrbits: () => void
+  showNEOs: boolean
+  toggleNEOs: () => void
   showNEOsOrbits: boolean
   toggleNEOsOrbits: () => void
   showNEOsLabels: boolean
@@ -85,6 +93,7 @@ export interface Sun extends RotationProperties {
 // Interface para un planeta
 export interface Planet extends KeplerElements, RotationProperties {
   name: string
+  type: 'planet' | 'dwarf'
   radius: number
   realRadius: number
   orbitColor: string

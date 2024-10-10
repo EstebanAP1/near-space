@@ -3,7 +3,10 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { FirstPersonControls, OrbitControls } from '@react-three/drei'
 import { Vector3 } from 'three'
 import { useSpace } from '../hooks/useSpace'
-import { OrbitControls as ThreeOrbitControls, FirstPersonControls as ThreeFirstPersonControls } from 'three-stdlib'
+import {
+  OrbitControls as ThreeOrbitControls,
+  FirstPersonControls as ThreeFirstPersonControls,
+} from 'three-stdlib'
 
 export function CameraController() {
   const orbitRef = useRef<ThreeOrbitControls>(null)
@@ -19,8 +22,11 @@ export function CameraController() {
   const isCameraStored = useRef(false)
 
   const baseDistance = 15
-  const minDistance = 2
-  const maxDistance = 10000
+  const minDefaultDistance = 10
+  const maxDefaultDistance = 10000
+
+  const minSelectedDistance = 2
+  const maxSelectedDistance = 20
 
   const lerpFactor = 0.1
   const backLerpFactor = 0.3
@@ -42,8 +48,8 @@ export function CameraController() {
         let calculatedDistance = baseDistance * Math.log(radius)
 
         calculatedDistance = Math.max(
-          minDistance,
-          Math.min(calculatedDistance, maxDistance)
+          minDefaultDistance,
+          Math.min(calculatedDistance, maxSelectedDistance)
         )
 
         const direction = new Vector3(0, -5, 10).normalize()
@@ -54,6 +60,9 @@ export function CameraController() {
         camera.position.lerp(desiredCameraPosition, lerpFactor)
 
         if (orbitRef.current) {
+          orbitRef.current.minDistance = minSelectedDistance
+          orbitRef.current.maxDistance = maxSelectedDistance
+
           orbitRef.current.target.lerp(planetPosition, lerpFactor)
           orbitRef.current.update()
         }
@@ -62,6 +71,9 @@ export function CameraController() {
           camera.position.lerp(previousCameraPosition.current, backLerpFactor)
 
           if (orbitRef.current) {
+            orbitRef.current.minDistance = minDefaultDistance
+            orbitRef.current.maxDistance = maxDefaultDistance
+
             orbitRef.current.target.lerp(
               previousControlsTarget.current,
               backLerpFactor
@@ -91,8 +103,8 @@ export function CameraController() {
           enableZoom={true}
           enableRotate={true}
           zoomSpeed={3}
-          minDistance={minDistance}
-          maxDistance={maxDistance}
+          minDistance={minDefaultDistance}
+          maxDistance={maxDefaultDistance}
           minPolarAngle={0}
           maxPolarAngle={Math.PI}
           minAzimuthAngle={-Infinity}

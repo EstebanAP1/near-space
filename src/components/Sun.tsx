@@ -12,7 +12,7 @@ export function Sun() {
   const labelRef = useRef<THREE.Mesh | null>(null)
 
   const { camera } = useThree()
-  const { focusedPlanet, setFocusedPlanet, showLabels } = useSpace()
+  const { focusedPlanet, setFocusedPlanet, showPlanetLabels } = useSpace()
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(...SUN.rotationAxis).normalize(),
@@ -84,7 +84,7 @@ export function Sun() {
       const maxCameraDistance = 2500
 
       const minFontSize = 1.5
-      const maxFontSize = 100
+      const maxFontSize = 150
       let fontSize = minFontSize
 
       if (distance > minCameraDistance && distance < maxCameraDistance) {
@@ -119,7 +119,7 @@ export function Sun() {
     })
   }, [setFocusedPlanet, SUN])
 
-  const handlePointerOver = useCallback(() => {
+  const handlePointerMove = useCallback(() => {
     document.body.style.cursor = 'pointer'
   }, [])
 
@@ -128,14 +128,11 @@ export function Sun() {
   }, [])
 
   return (
-    <>
-      <mesh
-        ref={sunRef}
-        position={[0, 0, 0]}
-        castShadow
-        onClick={handleClick}
-        onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}>
+    <group
+      onClick={handleClick}
+      onPointerMove={handlePointerMove}
+      onPointerOut={handlePointerOut}>
+      <mesh ref={sunRef} position={[0, 0, 0]} castShadow>
         <sphereGeometry args={[SUN.radius, 32, 32]} />
         <primitive object={meshBasicMaterial} attach='material' />
       </mesh>
@@ -149,15 +146,12 @@ export function Sun() {
         shadow-mapSize-height={1024}
       />
 
-      {showLabels && !thisFocusedPlanet && (
+      {showPlanetLabels && !thisFocusedPlanet && (
         <Billboard>
           <AnimatedText
             ref={labelRef}
             position={[0, 0, 0]}
             fontSize={textFontSize}
-            onClick={handleClick}
-            onPointerOver={handlePointerOver}
-            onPointerOut={handlePointerOut}
             anchorX='center'
             anchorY='middle'
             material={textMaterial}>
@@ -165,6 +159,6 @@ export function Sun() {
           </AnimatedText>
         </Billboard>
       )}
-    </>
+    </group>
   )
 }

@@ -13,6 +13,7 @@ import { Planet, PlanetDetail } from '../types'
 export const PLANETS: Planet[] = [
   {
     name: 'Mercury',
+    type: 'planet',
     radius: 2440 / 20000,
     realRadius: 2440,
     texture: mercuryTexture,
@@ -37,6 +38,7 @@ export const PLANETS: Planet[] = [
   },
   {
     name: 'Venus',
+    type: 'planet',
     radius: 6052 / 20000,
     realRadius: 6052,
     texture: venusTexture,
@@ -61,6 +63,7 @@ export const PLANETS: Planet[] = [
   },
   {
     name: 'Earth',
+    type: 'planet',
     radius: 6371 / 20000,
     realRadius: 6371,
     texture: earthTexture,
@@ -85,6 +88,7 @@ export const PLANETS: Planet[] = [
   },
   {
     name: 'Mars',
+    type: 'planet',
     radius: 3390 / 20000,
     realRadius: 3390,
     texture: marsTexture,
@@ -109,6 +113,7 @@ export const PLANETS: Planet[] = [
   },
   {
     name: 'Jupiter',
+    type: 'planet',
     radius: 69911 / 20000,
     realRadius: 69911,
     texture: jupiterTexture,
@@ -133,6 +138,7 @@ export const PLANETS: Planet[] = [
   },
   {
     name: 'Saturn',
+    type: 'planet',
     radius: 58232 / 20000,
     realRadius: 58232,
     texture: saturnTexture,
@@ -163,6 +169,7 @@ export const PLANETS: Planet[] = [
   },
   {
     name: 'Uranus',
+    type: 'planet',
     radius: 25362 / 20000,
     realRadius: 25362,
     texture: uranusTexture,
@@ -187,6 +194,7 @@ export const PLANETS: Planet[] = [
   },
   {
     name: 'Neptune',
+    type: 'planet',
     radius: 24622 / 20000,
     realRadius: 24622,
     texture: neptuneTexture,

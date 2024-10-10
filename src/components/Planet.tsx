@@ -1,20 +1,35 @@
 import { useRef, useMemo, useEffect, useCallback } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { Line } from '@react-three/drei'
+import { Billboard, Line, Text } from '@react-three/drei'
 import { useSpace } from '../hooks/useSpace'
 import { solveKepler } from '../utils/kepler'
 import { Planet as PlanetInterface } from '../types'
+import { animated, useSpring } from '@react-spring/three'
 
 export function Planet(planetData: PlanetInterface) {
   const groupRef = useRef<THREE.Group | null>(null)
   const planetGroupRef = useRef<THREE.Group | null>(null)
   const planetRef = useRef<THREE.LOD | null>(null)
   const ringRef = useRef<THREE.LOD | null>(null)
+  const labelRef = useRef<THREE.Mesh | null>(null)
   const { camera } = useThree()
 
   const {
+    focusedPlanet,
+    setFocusedPlanet,
+    speedFactor,
+    showDwarf,
+    showPlanetLabels,
+    showPlanetOrbits,
+    showDwarfLabels,
+    showDwarfOrbits,
+    AU,
+  } = useSpace()
+
+  const {
     name,
+    type,
     radius,
     texture,
     rotationSpeed,
@@ -36,14 +51,14 @@ export function Planet(planetData: PlanetInterface) {
     rings,
   } = planetData
 
-  const {
-    focusedPlanet,
-    setFocusedPlanet,
-    speedFactor,
-    showLabels,
-    showOrbits,
-    AU,
-  } = useSpace()
+  const showLabels = useMemo(
+    () => (type === 'planet' ? showPlanetLabels : showDwarfLabels),
+    [type, showPlanetLabels, showDwarfLabels]
+  )
+  const showOrbits = useMemo(
+    () => (type === 'planet' ? showPlanetOrbits : showDwarfOrbits),
+    [type, showPlanetOrbits, showDwarfOrbits]
+  )
 
   const thisFocusedPlanet = useMemo(
     () => focusedPlanet?.name === name,
@@ -69,7 +84,7 @@ export function Planet(planetData: PlanetInterface) {
     longitudeOfAscendingNode,
     argumentOfPeriapsis,
     meanAnomalyAtEpoch,
-    opacity: 0, // Add opacity property
+    opacity: 0,
   })
 
   useEffect(() => {
@@ -197,12 +212,20 @@ export function Planet(planetData: PlanetInterface) {
     [texture]
   )
 
-  // Dentro de tu componente Planet
+  const textMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#ffffff',
+        emissive: '#ffffff',
+        emissiveIntensity: 0.2,
+        transparent: true,
+      }),
+    []
+  )
 
   const highDetailRingMaterial = useMemo(() => {
     if (!rings) return null
 
-    // Crear un canvas para generar un gradiente de transparencia
     const size = 512
     const canvas = document.createElement('canvas')
     canvas.width = size
@@ -214,7 +237,6 @@ export function Planet(planetData: PlanetInterface) {
       return null
     }
 
-    // Crear un gradiente radial
     const gradient = context.createRadialGradient(
       size / 2,
       size / 2,
@@ -226,13 +248,10 @@ export function Planet(planetData: PlanetInterface) {
     gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)')
     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
 
-    // Dibujar el gradiente en el canvas
-
     context.fillStyle = gradient
 
     context.fillRect(0, 0, size, size)
 
-    // Crear una textura a partir del canvas
     const texture = new THREE.CanvasTexture(canvas)
     texture.needsUpdate = true
 
@@ -251,8 +270,6 @@ export function Planet(planetData: PlanetInterface) {
       opacity: 1,
     })
   }, [orbitColor])
-
-  // Luego, usa ringMaterial para crear los anillos como se explicó anteriormente
 
   const planetLOD = useMemo(() => {
     const lod = new THREE.LOD()
@@ -330,6 +347,14 @@ export function Planet(planetData: PlanetInterface) {
   const handlePointerOut = useCallback(() => {
     document.body.style.cursor = 'auto'
   }, [])
+
+  const AnimatedText = useMemo(() => animated(Text), [Text])
+
+  const [{ textFontSize }, api] = useSpring(() => ({
+    textOpacity: 0,
+    textFontSize: 0,
+    config: { mass: 0, tension: 0, friction: 0 },
+  }))
 
   useFrame(({ clock }, delta) => {
     if (!AU) {
@@ -430,16 +455,15 @@ export function Planet(planetData: PlanetInterface) {
       planetLOD.update(camera)
 
       const orbitalEuler = new THREE.Euler(
-        updatedRad.iRad, // Inclinación
-        updatedRad.ORad, // Longitud del nodo ascendente
-        updatedRad.ωRad, // Argumento del periapsis
+        updatedRad.iRad,
+        updatedRad.ORad,
+        updatedRad.ωRad,
         'XYZ'
       )
       const orbitalQuaternion = new THREE.Quaternion().setFromEuler(
         orbitalEuler
       )
 
-      // Rotar el eje de rotación original
       const rotatedRotationAxis = rotationAxisVector
         .clone()
         .applyQuaternion(orbitalQuaternion)
@@ -457,12 +481,47 @@ export function Planet(planetData: PlanetInterface) {
         if (ringRef.current) {
           ringRef.current.rotateOnAxis(
             new THREE.Vector3(...rings.rotationAxis).normalize(),
-            rings.rotationSpeed * delta // Eliminado el multiplicador * 50
+            rings.rotationSpeed * delta
           )
         }
       }
 
-      const planetPos = planetGroupRef.current.position.clone()
+      const cameraDistance = camera.position.length()
+      const minCameraDistance = 10
+      const maxCameraDistance = 2500
+
+      const minFontSize = 1.5
+      const maxFontSize = 120
+      let fontSize = minFontSize
+
+      if (
+        cameraDistance > minCameraDistance &&
+        cameraDistance < maxCameraDistance
+      ) {
+        fontSize = THREE.MathUtils.clamp(
+          minFontSize +
+            ((cameraDistance - minCameraDistance) /
+              (maxCameraDistance - minCameraDistance)) *
+              (maxFontSize - minFontSize),
+          minFontSize,
+          maxFontSize
+        )
+      } else if (cameraDistance >= maxCameraDistance) {
+        fontSize = maxFontSize
+      }
+
+      api.start({
+        textFontSize: fontSize,
+      })
+
+      const planetPos = planetGroupRef.current.position
+      const direction = planetPos.clone().normalize()
+      const labelOffset = radius + fontSize + 2
+
+      if (labelRef.current) {
+        labelRef.current.position.copy(direction.multiplyScalar(labelOffset))
+      }
+
       const cameraPosition = camera.position
       const distance = cameraPosition.distanceTo(planetPos)
 
@@ -483,12 +542,18 @@ export function Planet(planetData: PlanetInterface) {
       if (groupRef.current) {
         groupRef.current.traverse(child => {
           if (child instanceof THREE.Mesh) {
-            child.material = child.material.clone()
             child.material.opacity = THREE.MathUtils.lerp(
               child.material.opacity,
               newOpacity,
               0.1
             )
+            if (child.name === 'label') {
+              child.material.opacity = THREE.MathUtils.lerp(
+                Math.min(child.material.opacity, 0.7),
+                newOpacity,
+                0.1
+              )
+            }
             if (child.type === 'Line2') {
               child.material.opacity = Math.min(child.material.opacity, 0.4)
             }
@@ -501,34 +566,57 @@ export function Planet(planetData: PlanetInterface) {
     }
   })
 
+  if (type === 'dwarf' && !showDwarf) return null
   return (
-    <group ref={groupRef}>
-      <Line
-        points={orbitPoints}
-        color={orbitColor}
-        lineWidth={2}
-        transparent
-        visible={!thisFocusedPlanet && showOrbits}
-      />
+    <>
+      <group ref={groupRef}>
+        <Line
+          points={orbitPoints}
+          color={orbitColor}
+          lineWidth={2}
+          transparent
+          visible={!thisFocusedPlanet && showOrbits}
+        />
 
-      <group
-        ref={planetGroupRef}
-        onClick={handlePlanetClick}
-        onPointerMove={handlePointerOver}
-        onPointerOut={handlePointerOut}>
-        {planetLOD && (
-          <primitive
-            object={planetLOD}
-            ref={planetRef}
-            castShadow
-            receiveShadow
-          />
-        )}
+        <group
+          ref={planetGroupRef}
+          onClick={handlePlanetClick}
+          onPointerMove={handlePointerOver}
+          onPointerOut={handlePointerOut}>
+          {planetLOD && (
+            <primitive
+              object={planetLOD}
+              ref={planetRef}
+              castShadow
+              receiveShadow
+            />
+          )}
 
-        {rings && ringLod && (
-          <primitive object={ringLod} ref={ringRef} castShadow receiveShadow />
-        )}
+          {rings && ringLod && (
+            <primitive
+              object={ringLod}
+              ref={ringRef}
+              castShadow
+              receiveShadow
+            />
+          )}
+
+          {showLabels && !thisFocusedPlanet && (
+            <Billboard>
+              <AnimatedText
+                ref={labelRef}
+                name={'label'}
+                position={[0, 0, 0]}
+                fontSize={textFontSize}
+                anchorX='center'
+                anchorY='middle'
+                material={textMaterial}>
+                {name}
+              </AnimatedText>
+            </Billboard>
+          )}
+        </group>
       </group>
-    </group>
+    </>
   )
 }
