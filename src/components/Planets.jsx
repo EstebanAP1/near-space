@@ -1,11 +1,11 @@
 import React from 'react'
 import { Planet } from './Planet'
-import { PLANETS } from '../data/spaceData'
+import { ALL_PLANETS } from '../data/planets'
 
 export function Planets() {
   return (
     <>
-      {PLANETS.map(planet => (
+      {ALL_PLANETS.map(planet => (
         <Planet key={planet.name} {...planet} />
       ))}
     </>

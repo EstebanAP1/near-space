@@ -13,8 +13,10 @@ export const useSpace = create((set, get) => ({
     }
     if (get().focusedPlanet?.name !== planet?.name) {
       if (get().camera === 'ship') return
+
       const prevSpeedFactor = get().speedFactor
-      set({ focusedPlanet: planet, speedFactor: 1, prevSpeedFactor })
+
+      set({ focusedPlanet: planet, speedFactor: 0, prevSpeedFactor })
     }
   },
 

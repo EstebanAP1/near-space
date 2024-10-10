@@ -1,5 +1,5 @@
 import { useSpace } from '../hooks/useSpace'
-import { PLANET_DETAILS as planetDetails } from '../data/planetDetails'
+import { PLANET_DATA as planetDetails } from '../data/planets'
 import { useState, useEffect } from 'react'
 
 export function PlanetDetails() {
