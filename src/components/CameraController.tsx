@@ -1,30 +1,39 @@
-import React, { useRef } from 'react'
+import { useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { FirstPersonControls, OrbitControls } from '@react-three/drei'
 import { Vector3 } from 'three'
 import { useSpace } from '../hooks/useSpace'
+import {
+  OrbitControls as ThreeOrbitControls,
+  FirstPersonControls as ThreeFirstPersonControls,
+} from 'three-stdlib'
 
 export function CameraController() {
-  const orbitRef = useRef()
-  const shipRef = useRef()
+  const orbitRef = useRef<ThreeOrbitControls>(null)
+  const shipRef = useRef<ThreeFirstPersonControls>(null)
+
   const { camera } = useThree()
+
   const cameraType = useSpace(state => state.camera)
-  const focusedPlanet = useSpace(state => state.focusedPlanet)
+  const focusedBody = useSpace(state => state.focusedBody)
 
   const previousCameraPosition = useRef(new Vector3())
   const previousControlsTarget = useRef(new Vector3())
   const isCameraStored = useRef(false)
 
-  const baseDistance = 15
-  const minDistance = 2
-  const maxDistance = 10000
+  const baseDistance = 25
+  const minDefaultDistance = 10
+  const maxDefaultDistance = 50000
+
+  const minSelectedDistance = 0
+  const maxSelectedDistance = 100
 
   const lerpFactor = 0.1
   const backLerpFactor = 0.3
 
   useFrame(() => {
     if (cameraType === 'orbit') {
-      if (focusedPlanet && focusedPlanet.planetGroupRef.current) {
+      if (focusedBody && focusedBody.ref.current) {
         if (!isCameraStored.current) {
           previousCameraPosition.current.copy(camera.position)
           if (orbitRef.current) {
@@ -33,15 +42,14 @@ export function CameraController() {
           isCameraStored.current = true
         }
 
-        const planetPosition =
-          focusedPlanet.planetGroupRef.current.position.clone()
+        const planetPosition = focusedBody.ref.current.position.clone()
 
-        const radius = focusedPlanet.radius || 1
+        const radius = focusedBody.data.radius || 1
         let calculatedDistance = baseDistance * Math.log(radius)
 
         calculatedDistance = Math.max(
-          minDistance,
-          Math.min(calculatedDistance, maxDistance)
+          minDefaultDistance,
+          Math.min(calculatedDistance, maxSelectedDistance)
         )
 
         const direction = new Vector3(0, -5, 10).normalize()
@@ -52,6 +60,9 @@ export function CameraController() {
         camera.position.lerp(desiredCameraPosition, lerpFactor)
 
         if (orbitRef.current) {
+          orbitRef.current.minDistance = minSelectedDistance
+          orbitRef.current.maxDistance = maxSelectedDistance
+
           orbitRef.current.target.lerp(planetPosition, lerpFactor)
           orbitRef.current.update()
         }
@@ -60,6 +71,9 @@ export function CameraController() {
           camera.position.lerp(previousCameraPosition.current, backLerpFactor)
 
           if (orbitRef.current) {
+            orbitRef.current.minDistance = minDefaultDistance
+            orbitRef.current.maxDistance = maxDefaultDistance
+
             orbitRef.current.target.lerp(
               previousControlsTarget.current,
               backLerpFactor
@@ -89,8 +103,8 @@ export function CameraController() {
           enableZoom={true}
           enableRotate={true}
           zoomSpeed={3}
-          minDistance={minDistance}
-          maxDistance={maxDistance}
+          minDistance={minDefaultDistance}
+          maxDistance={maxDefaultDistance}
           minPolarAngle={0}
           maxPolarAngle={Math.PI}
           minAzimuthAngle={-Infinity}

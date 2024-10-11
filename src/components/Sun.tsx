@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { SUN } from '../data/sun'
@@ -8,20 +8,20 @@ import { animated, useSpring } from '@react-spring/three'
 import { Billboard, Text } from '@react-three/drei'
 
 export function Sun() {
-  const sunRef = useRef()
-  const labelRef = useRef()
+  const sunRef = useRef<THREE.Mesh | null>(null)
+  const labelRef = useRef<THREE.Mesh | null>(null)
 
   const { camera } = useThree()
-  const { focusedPlanet, setFocusedPlanet, showLabels } = useSpace()
+  const { focusedBody, setFocusedBody, showPlanetLabels } = useSpace()
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(...SUN.rotationAxis).normalize(),
     []
   )
 
-  const thisFocusedPlanet = useMemo(
-    () => focusedPlanet?.name === SUN.name,
-    [focusedPlanet, SUN.name]
+  const thisFocusedBody = useMemo(
+    () => focusedBody?.data?.name === SUN.name,
+    [focusedBody, SUN.name]
   )
 
   const meshBasicMaterial = useMemo(() => {
@@ -30,7 +30,7 @@ export function Sun() {
       transparent: false,
       opacity: 1,
     })
-  })
+  }, [SUN])
 
   const MeshStandardMaterial = useMemo(() => {
     return new THREE.MeshStandardMaterial({
@@ -40,7 +40,7 @@ export function Sun() {
       transparent: false,
       opacity: 1,
     })
-  })
+  }, [SUN])
 
   const textMaterial = useMemo(
     () =>
@@ -56,13 +56,13 @@ export function Sun() {
 
   const AnimatedText = useMemo(() => animated(Text), [Text])
 
-  const [{ textOpacity, textFontSize }, api] = useSpring(() => ({
+  const [{ textFontSize }, api] = useSpring(() => ({
     textOpacity: 0,
     textFontSize: 0,
     config: { mass: 0, tension: 0, friction: 0 },
   }))
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (sunRef.current) {
       sunRef.current.rotateOnAxis(
         rotationAxisVector,
@@ -73,7 +73,7 @@ export function Sun() {
       const cameraPosition = camera.position
       const distance = cameraPosition.distanceTo(sunPosition)
 
-      const minMaterialDistance = 40
+      const minMaterialDistance = 200
 
       sunRef.current.material =
         distance <= minMaterialDistance
@@ -81,10 +81,10 @@ export function Sun() {
           : meshBasicMaterial
 
       const minCameraDistance = 10
-      const maxCameraDistance = 2500
+      const maxCameraDistance = 12000
 
       const minFontSize = 1.5
-      const maxFontSize = 100
+      const maxFontSize = 600
       let fontSize = minFontSize
 
       if (distance > minCameraDistance && distance < maxCameraDistance) {
@@ -101,10 +101,6 @@ export function Sun() {
       }
 
       api.start({
-        textOpacity:
-          showLabels && !thisFocusedPlanet && sunRef.current.opacity > 0.05
-            ? 1
-            : 0,
         textFontSize: fontSize,
       })
 
@@ -117,13 +113,13 @@ export function Sun() {
   })
 
   const handleClick = useCallback(() => {
-    setFocusedPlanet({
-      ...SUN,
-      planetGroupRef: sunRef,
+    setFocusedBody({
+      data: SUN,
+      ref: sunRef,
     })
-  }, [setFocusedPlanet, SUN])
+  }, [setFocusedBody, SUN])
 
-  const handlePointerOver = useCallback(() => {
+  const handlePointerMove = useCallback(() => {
     document.body.style.cursor = 'pointer'
   }, [])
 
@@ -132,15 +128,11 @@ export function Sun() {
   }, [])
 
   return (
-    <>
-      <mesh
-        ref={sunRef}
-        position={[0, 0, 0]}
-        castShadow
-        onClick={handleClick}
-        onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}
-        opacity={focusedPlanet?.name === 'Sun' ? 1 : 0.8}>
+    <group
+      onClick={handleClick}
+      onPointerMove={handlePointerMove}
+      onPointerOut={handlePointerOut}>
+      <mesh ref={sunRef} position={[0, 0, 0]} castShadow>
         <sphereGeometry args={[SUN.radius, 32, 32]} />
         <primitive object={meshBasicMaterial} attach='material' />
       </mesh>
@@ -154,23 +146,19 @@ export function Sun() {
         shadow-mapSize-height={1024}
       />
 
-      {showLabels && !thisFocusedPlanet && (
+      {showPlanetLabels && !thisFocusedBody && (
         <Billboard>
           <AnimatedText
             ref={labelRef}
             position={[0, 0, 0]}
             fontSize={textFontSize}
-            onClick={handleClick}
-            onPointerOver={handlePointerOver}
-            onPointerOut={handlePointerOut}
             anchorX='center'
             anchorY='middle'
-            material={textMaterial}
-            opacity={textOpacity}>
+            material={textMaterial}>
             {SUN.name}
           </AnimatedText>
         </Billboard>
       )}
-    </>
+    </group>
   )
 }

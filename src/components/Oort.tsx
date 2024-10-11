@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import * as THREE from 'three'
 
-export default function Starfield({ numStars = 500, size = 0.5 }) {
+export default function Oort({ numStars = 5000, size = 0.5 }) {
   const [positions, colors, sizes] = useMemo(() => {
     const positions = []
     const colors = []
@@ -11,7 +11,7 @@ export default function Starfield({ numStars = 500, size = 0.5 }) {
     for (let i = 0; i < numStars; i++) {
       const theta = THREE.MathUtils.randFloatSpread(360)
       const phi = THREE.MathUtils.randFloatSpread(360)
-      const distance = THREE.MathUtils.randFloat(5100, 6000)
+      const distance = THREE.MathUtils.randFloat(35000, 36000)
 
       const x = distance * Math.sin(theta) * Math.cos(phi)
       const y = distance * Math.sin(theta) * Math.sin(phi)

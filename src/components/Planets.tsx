@@ -1,4 +1,3 @@
-import React from 'react'
 import { Planet } from './Planet'
 import { ALL_PLANETS } from '../data/planets'
 

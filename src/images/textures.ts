@@ -1,3 +1,4 @@
+import { Textures } from '../types'
 import {
   earth,
   sun,
@@ -14,9 +15,11 @@ import {
 
 import { NearestFilter, RepeatWrapping, TextureLoader } from 'three'
 
-const textureLoader = new TextureLoader()
+// Crear el cargador de texturas
+const textureLoader: TextureLoader = new TextureLoader()
 
-const textures = {
+// Crear las texturas cargadas
+const textures: Textures = {
   sunTexture: textureLoader.load(sun),
   earthTexture: textureLoader.load(earth),
   jupiterTexture: textureLoader.load(jupiter),
@@ -30,8 +33,9 @@ const textures = {
   starTexture: textureLoader.load(star),
 }
 
-function loadTextures(textures) {
-  Object.entries(textures).forEach(([key, texture]) => {
+// Función para configurar las texturas
+function loadTextures(textures: Textures): Textures {
+  Object.entries(textures).forEach(([_, texture]) => {
     texture.wrapS = texture.wrapT = RepeatWrapping
     texture.magFilter = NearestFilter
   })
@@ -39,6 +43,7 @@ function loadTextures(textures) {
   return textures
 }
 
+// Exportación de las texturas con tipado
 export const {
   sunTexture,
   earthTexture,
