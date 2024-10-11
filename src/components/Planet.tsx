@@ -16,8 +16,8 @@ export function Planet(planetData: PlanetInterface) {
   const { camera } = useThree()
 
   const {
-    focusedPlanet,
-    setFocusedPlanet,
+    focusedBody,
+    setFocusedBody,
     speedFactor,
     showDwarf,
     showPlanetLabels,
@@ -60,9 +60,9 @@ export function Planet(planetData: PlanetInterface) {
     [type, showPlanetOrbits, showDwarfOrbits]
   )
 
-  const thisFocusedPlanet = useMemo(
-    () => focusedPlanet?.name === name,
-    [focusedPlanet, name]
+  const thisFocusedBody = useMemo(
+    () => focusedBody?.data.name === name,
+    [focusedBody, name]
   )
 
   const deg2rad = useMemo(() => (deg: number) => (deg * Math.PI) / 180, [])
@@ -286,7 +286,7 @@ export function Planet(planetData: PlanetInterface) {
       mediumDetailGeometry,
       mediumDetailMaterial
     )
-    lod.addLevel(mediumDetailMesh, semiMajorAxis * AU * 0.5)
+    lod.addLevel(mediumDetailMesh, semiMajorAxis * AU * 1.0)
 
     return lod
   }, [radius, highDetailMaterial, mediumDetailMaterial, semiMajorAxis, AU])
@@ -318,7 +318,7 @@ export function Planet(planetData: PlanetInterface) {
       mediumDetailRingMaterial
     )
 
-    lod.addLevel(mediumDetailRing, semiMajorAxis * AU * 0.5)
+    lod.addLevel(mediumDetailRing, semiMajorAxis * AU * 1.0)
 
     return lod
   }, [
@@ -329,16 +329,16 @@ export function Planet(planetData: PlanetInterface) {
     AU,
   ])
 
-  const handlePlanetClick = useCallback(() => {
+  const handleBodyClick = useCallback(() => {
     if (keplerElementsRef.current.opacity > 0.05) {
-      setFocusedPlanet({
-        ...planetData,
+      setFocusedBody({
+        data: planetData,
         ref: planetGroupRef,
       })
     }
-  }, [setFocusedPlanet, planetData])
+  }, [setFocusedBody, planetData])
 
-  const handlePointerOver = useCallback(() => {
+  const handlePointerMove = useCallback(() => {
     if (keplerElementsRef.current.opacity > 0.05) {
       document.body.style.cursor = 'pointer'
     }
@@ -488,10 +488,10 @@ export function Planet(planetData: PlanetInterface) {
 
       const cameraDistance = camera.position.length()
       const minCameraDistance = 10
-      const maxCameraDistance = 2500
+      const maxCameraDistance = 12000
 
       const minFontSize = 1.5
-      const maxFontSize = 120
+      const maxFontSize = 500
       let fontSize = minFontSize
 
       if (
@@ -516,7 +516,7 @@ export function Planet(planetData: PlanetInterface) {
 
       const planetPos = planetGroupRef.current.position
       const direction = planetPos.clone().normalize()
-      const labelOffset = radius + fontSize + 2
+      const labelOffset = radius + fontSize + 3
 
       if (labelRef.current) {
         labelRef.current.position.copy(direction.multiplyScalar(labelOffset))
@@ -526,7 +526,7 @@ export function Planet(planetData: PlanetInterface) {
       const distance = cameraPosition.distanceTo(planetPos)
 
       const minDistance = semiMajorAxis * AU * 4
-      const maxDistance = semiMajorAxis * AU * 15
+      const maxDistance = semiMajorAxis * AU * 10
 
       let newOpacity = 1
       if (distance > minDistance) {
@@ -575,13 +575,13 @@ export function Planet(planetData: PlanetInterface) {
           color={orbitColor}
           lineWidth={2}
           transparent
-          visible={!thisFocusedPlanet && showOrbits}
+          visible={!thisFocusedBody && showOrbits}
         />
 
         <group
           ref={planetGroupRef}
-          onClick={handlePlanetClick}
-          onPointerMove={handlePointerOver}
+          onClick={handleBodyClick}
+          onPointerMove={handlePointerMove}
           onPointerOut={handlePointerOut}>
           {planetLOD && (
             <primitive
@@ -601,7 +601,7 @@ export function Planet(planetData: PlanetInterface) {
             />
           )}
 
-          {showLabels && !thisFocusedPlanet && (
+          {showLabels && !thisFocusedBody && (
             <Billboard>
               <AnimatedText
                 ref={labelRef}

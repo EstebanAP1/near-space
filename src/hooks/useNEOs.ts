@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useSpace } from './useSpace'
-import { PLANE_NEO_DATA } from '../data/planeNEOData'
+import { PLANE_NEO_DATA } from '../data/NEOData'
 
 export function useNEOs() {
   const setNEOs = useSpace(state => state.setNEOs)

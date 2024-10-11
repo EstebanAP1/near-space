@@ -8,13 +8,13 @@ import {
   uranusTexture,
   venusTexture,
 } from '../images/textures'
-import { Planet, PlanetDetail } from '../types'
+import { Planet, BodyDetail } from '../types'
 
 export const PLANETS: Planet[] = [
   {
     name: 'Mercury',
     type: 'planet',
-    radius: 2440 / 20000,
+    radius: 2440 / 3000,
     realRadius: 2440,
     texture: mercuryTexture,
     rotationSpeed: 360 / (58.6 * 86400),
@@ -39,7 +39,7 @@ export const PLANETS: Planet[] = [
   {
     name: 'Venus',
     type: 'planet',
-    radius: 6052 / 20000,
+    radius: 6052 / 3000,
     realRadius: 6052,
     texture: venusTexture,
     rotationSpeed: -(360 / (243 * 86400)),
@@ -64,7 +64,7 @@ export const PLANETS: Planet[] = [
   {
     name: 'Earth',
     type: 'planet',
-    radius: 6371 / 20000,
+    radius: 6371 / 3000,
     realRadius: 6371,
     texture: earthTexture,
     rotationSpeed: 360 / 86400,
@@ -89,7 +89,7 @@ export const PLANETS: Planet[] = [
   {
     name: 'Mars',
     type: 'planet',
-    radius: 3390 / 20000,
+    radius: 3390 / 3000,
     realRadius: 3390,
     texture: marsTexture,
     rotationSpeed: 360 / (24.6 * 3600),
@@ -114,7 +114,7 @@ export const PLANETS: Planet[] = [
   {
     name: 'Jupiter',
     type: 'planet',
-    radius: 69911 / 20000,
+    radius: 69911 / 3000,
     realRadius: 69911,
     texture: jupiterTexture,
     rotationSpeed: 360 / (9.9 * 3600),
@@ -139,7 +139,7 @@ export const PLANETS: Planet[] = [
   {
     name: 'Saturn',
     type: 'planet',
-    radius: 58232 / 20000,
+    radius: 58232 / 3000,
     realRadius: 58232,
     texture: saturnTexture,
     rotationSpeed: 360 / (10.7 * 3600),
@@ -161,8 +161,8 @@ export const PLANETS: Planet[] = [
     argumentOfPeriapsisRate: -0.41897216, // deg/Cy
     meanAnomalyAtEpochRate: 1222.49362201, // deg/Cy (n)
     rings: {
-      innerRadius: 75000 / 20000, // Ajusta según la escala de tu modelo
-      outerRadius: 140000 / 20000, // Ajusta según la escala de tu modelo
+      innerRadius: 75000 / 3000, // Ajusta según la escala de tu modelo
+      outerRadius: 140000 / 3000, // Ajusta según la escala de tu modelo
       rotationSpeed: 360 / (10 * 3600), // Velocidad de rotación de los anillos: 10 horas
       rotationAxis: [0, 1, 0], // Eje de rotación de los anillos
     },
@@ -170,7 +170,7 @@ export const PLANETS: Planet[] = [
   {
     name: 'Uranus',
     type: 'planet',
-    radius: 25362 / 20000,
+    radius: 25362 / 3000,
     realRadius: 25362,
     texture: uranusTexture,
     rotationSpeed: -(360 / (17.2 * 3600)),
@@ -183,7 +183,7 @@ export const PLANETS: Planet[] = [
     argumentOfPeriapsis: 170.9542763, // en grados
     meanAnomalyAtEpoch: 142.2386, // en grados
     orbitalPeriod: 30685.4, // en días
-    orbitColor: '#f3de2c',
+    orbitColor: '#e9c46a',
     // Tasas de cambio
     semiMajorAxisRate: -0.00196176, // au/Cy
     eccentricityRate: -0.00004397, // rad/Cy
@@ -195,7 +195,7 @@ export const PLANETS: Planet[] = [
   {
     name: 'Neptune',
     type: 'planet',
-    radius: 24622 / 20000,
+    radius: 24622 / 3000,
     realRadius: 24622,
     texture: neptuneTexture,
     rotationSpeed: 360 / (16.1 * 3600),
@@ -219,7 +219,7 @@ export const PLANETS: Planet[] = [
   },
 ]
 
-export const PLANET_DETAILS: PlanetDetail[] = [
+export const PLANET_DETAILS: BodyDetail[] = [
   {
     name: 'Sun',
     type: 'Star',

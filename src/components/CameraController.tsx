@@ -15,25 +15,25 @@ export function CameraController() {
   const { camera } = useThree()
 
   const cameraType = useSpace(state => state.camera)
-  const focusedPlanet = useSpace(state => state.focusedPlanet)
+  const focusedBody = useSpace(state => state.focusedBody)
 
   const previousCameraPosition = useRef(new Vector3())
   const previousControlsTarget = useRef(new Vector3())
   const isCameraStored = useRef(false)
 
-  const baseDistance = 15
+  const baseDistance = 25
   const minDefaultDistance = 10
-  const maxDefaultDistance = 10000
+  const maxDefaultDistance = 50000
 
-  const minSelectedDistance = 2
-  const maxSelectedDistance = 20
+  const minSelectedDistance = 0
+  const maxSelectedDistance = 100
 
   const lerpFactor = 0.1
   const backLerpFactor = 0.3
 
   useFrame(() => {
     if (cameraType === 'orbit') {
-      if (focusedPlanet && focusedPlanet.ref.current) {
+      if (focusedBody && focusedBody.ref.current) {
         if (!isCameraStored.current) {
           previousCameraPosition.current.copy(camera.position)
           if (orbitRef.current) {
@@ -42,9 +42,9 @@ export function CameraController() {
           isCameraStored.current = true
         }
 
-        const planetPosition = focusedPlanet.ref.current.position.clone()
+        const planetPosition = focusedBody.ref.current.position.clone()
 
-        const radius = focusedPlanet.radius || 1
+        const radius = focusedBody.data.radius || 1
         let calculatedDistance = baseDistance * Math.log(radius)
 
         calculatedDistance = Math.max(

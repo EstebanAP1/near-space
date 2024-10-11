@@ -2,10 +2,18 @@ import { useSpace } from '../hooks/useSpace'
 
 function UIControls() {
   const {
-    showLabels,
-    toggleLabels,
-    showOrbits,
-    toggleOrbits,
+    showPlanetLabels,
+    togglePlanetLabels,
+    showPlanetOrbits,
+    togglePlanetOrbits,
+    showDwarf,
+    toggleDwarf,
+    showDwarfLabels,
+    toggleDwarfLabels,
+    showDwarfOrbits,
+    toggleDwarfOrbits,
+    showNEOs,
+    toggleNEOs,
     showNEOsOrbits,
     toggleNEOsOrbits,
     showNEOsLabels,
@@ -13,17 +21,29 @@ function UIControls() {
   } = useSpace()
 
   return (
-    <div className='ui-controls'>
-      <span>Show/hide</span>
-      <label>
-        <input type='checkbox' checked={showLabels} onChange={toggleLabels} />
-        Labels
+    <div className='border-primary bg-primary absolute right-3 top-3 flex flex-col gap-1 rounded-lg border p-3 text-white shadow-xl'>
+      <span className='w-full text-center text-lg font-medium'>Show/hide</span>
+      <label className='flex w-full gap-1'>
+        <input
+          type='checkbox'
+          checked={showPlanetLabels}
+          onChange={togglePlanetLabels}
+        />
+        Planet labels
       </label>
-      <label>
-        <input type='checkbox' checked={showOrbits} onChange={toggleOrbits} />
+      <label className='flex w-full gap-1'>
+        <input
+          type='checkbox'
+          checked={showPlanetOrbits}
+          onChange={togglePlanetOrbits}
+        />
         Planet orbits
       </label>
-      <label>
+      <label className='flex w-full gap-1'>
+        <input type='checkbox' checked={showNEOs} onChange={toggleNEOs} />
+        NEOs
+      </label>
+      <label className='flex w-full gap-1'>
         <input
           type='checkbox'
           checked={showNEOsOrbits}
@@ -31,13 +51,33 @@ function UIControls() {
         />
         NEOs orbits
       </label>
-      <label>
+      <label className='flex w-full gap-1'>
         <input
           type='checkbox'
           checked={showNEOsLabels}
           onChange={toggleNEOsLabels}
         />
         NEOs labels
+      </label>
+      <label className='flex w-full gap-1'>
+        <input type='checkbox' checked={showDwarf} onChange={toggleDwarf} />
+        Dwarf planets
+      </label>
+      <label className='flex w-full gap-1'>
+        <input
+          type='checkbox'
+          checked={showDwarfLabels}
+          onChange={toggleDwarfLabels}
+        />
+        Dwarf labels
+      </label>
+      <label className='flex w-full gap-1'>
+        <input
+          type='checkbox'
+          checked={showDwarfOrbits}
+          onChange={toggleDwarfOrbits}
+        />
+        Dwarf orbits
       </label>
     </div>
   )

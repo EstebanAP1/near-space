@@ -16,17 +16,42 @@ export interface Textures {
 
 type CameraType = 'orbit' | 'ship'
 
-interface FocusedPlanet extends Planet {
-  ref: React.MutableRefObject<Object3D | null>
+export interface BodyDetail {
+  name: string
+  type: string
+  description: string
+  sizeArcosegPerSecond?: string
+  diameter: string
+  mass?: string
+  gravity?: string
+  rotationPeriod?: string
+  averageDistanceOfSun?: string
+  radius: string
+  volume: string
+  surface: string
+  moons?: number | string
 }
 
-interface FocusedSun extends Sun {
-  ref: React.MutableRefObject<Object3D | null>
+export interface NEO {
+  name: string
+  type: string
+  description: string
+  diameter: string
+  radius: number
+  realRadius: string
+  volume: string
+  surface: string
 }
 
+type Body = Planet | Sun | NEO
+
+interface FocusedBody {
+  data: Body
+  ref: React.MutableRefObject<Object3D | null>
+}
 export interface SpaceState {
-  focusedPlanet: FocusedPlanet | FocusedSun | null
-  setFocusedPlanet: (planet: FocusedPlanet | FocusedSun | null) => void
+  focusedBody: FocusedBody | null
+  setFocusedBody: (data: FocusedBody | null) => void
   AU: number
   camera: CameraType
   setCamera: (camera: CameraType) => void
@@ -111,37 +136,17 @@ export interface NEOData {
     perihelion_argument: string
     mean_anomaly: string
     orbital_period: string
+    orbit_class: {
+      orbit_class_description: string
+      orbit_class_range: string
+    }
+  }
+  estimated_diameter: {
+    kilometers: {
+      estimated_diameter_max: number
+    }
   }
   is_potentially_hazardous_asteroid: boolean
 }
 
-export interface NEOProps {
-  name: string
-  orbital_data: {
-    semi_major_axis: string
-    eccentricity: string
-    inclination: string
-    ascending_node_longitude: string
-    perihelion_argument: string
-    mean_anomaly: string
-    orbital_period: string
-  }
-  is_potentially_hazardous_asteroid: boolean
-}
-
-// Interface para detalles adicionales (si es necesario)
-export interface PlanetDetail {
-  name: string
-  type: string
-  description: string
-  sizeArcosegPerSecond: string
-  diameter: string
-  mass: string
-  gravity: string
-  rotationPeriod: string
-  averageDistanceOfSun?: string
-  radius: string
-  volume: string
-  surface: string
-  moons: number | string
-}
+export type NEOProps = Omit<NEOData, 'id'>

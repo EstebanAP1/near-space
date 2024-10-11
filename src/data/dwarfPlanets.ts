@@ -1,4 +1,4 @@
-import { Planet, PlanetDetail } from '../types'
+import { Planet, BodyDetail } from '../types'
 
 export const DWARF_PLANETS: Planet[] = [
   {
@@ -128,7 +128,7 @@ export const DWARF_PLANETS: Planet[] = [
   },
 ]
 
-export const DWARF_PLANET_DETAILS: PlanetDetail[] = [
+export const DWARF_PLANET_DETAILS: BodyDetail[] = [
   {
     name: 'Pluto',
     type: 'Dwarf Planet',

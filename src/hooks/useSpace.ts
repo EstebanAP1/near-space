@@ -2,26 +2,26 @@ import { create } from 'zustand'
 import { SpaceState } from '../types'
 
 export const useSpace = create<SpaceState>((set, get) => ({
-  focusedPlanet: null,
-  setFocusedPlanet: planet => {
+  focusedBody: null,
+  setFocusedBody: planet => {
     if (!planet) {
       set({
-        focusedPlanet: null,
+        focusedBody: null,
         camera: 'orbit',
         speedFactor: get().prevSpeedFactor,
       })
       return
     }
-    if (get().focusedPlanet?.name !== planet?.name) {
+    if (get().focusedBody?.data.name !== planet?.data.name) {
       if (get().camera === 'ship') return
 
       const prevSpeedFactor = get().speedFactor
 
-      set({ focusedPlanet: planet, speedFactor: 0, prevSpeedFactor })
+      set({ focusedBody: planet, speedFactor: 0, prevSpeedFactor })
     }
   },
 
-  AU: 50,
+  AU: 150,
 
   camera: 'orbit',
   setCamera: camera => set({ camera }),
@@ -45,7 +45,7 @@ export const useSpace = create<SpaceState>((set, get) => ({
   toggleDwarfLabels: () =>
     set(state => ({ showDwarfLabels: !state.showDwarfLabels })),
 
-  showDwarfOrbits: false,
+  showDwarfOrbits: true,
   toggleDwarfOrbits: () =>
     set(state => ({ showDwarfOrbits: !state.showDwarfOrbits })),
 
@@ -56,7 +56,7 @@ export const useSpace = create<SpaceState>((set, get) => ({
   toggleNEOsOrbits: () =>
     set(state => ({ showNEOsOrbits: !state.showNEOsOrbits })),
 
-  showNEOsLabels: true,
+  showNEOsLabels: false,
   toggleNEOsLabels: () =>
     set(state => ({ showNEOsLabels: !state.showNEOsLabels })),
 

@@ -1,16 +1,29 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useCallback } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { solveKepler } from '../utils/kepler'
 import { useSpace } from '../hooks/useSpace'
-import { Line, Text } from '@react-three/drei'
-import { NEOProps } from '../types'
+import { Billboard, Line, Text } from '@react-three/drei'
+import { NEO as NEOType, NEOProps } from '../types'
+import { animated, useSpring } from '@react-spring/three'
 
 export function NEO({ data }: { data: NEOProps }) {
   const { camera } = useThree()
-  const { speedFactor, showNEOsLabels, showNEOsOrbits, AU } = useSpace()
+  const groupRef = useRef<THREE.Group | null>(null)
+  const neoGroupRef = useRef<THREE.Group | null>(null)
   const neoRef = useRef<THREE.Mesh | null>(null)
-  const textRef = useRef<THREE.Mesh | null>(null)
+  const labelRef = useRef<THREE.Mesh | null>(null)
+  const groupOpacity = useRef(0)
+
+  const {
+    speedFactor,
+    showNEOs,
+    showNEOsLabels,
+    showNEOsOrbits,
+    AU,
+    focusedBody,
+    setFocusedBody,
+  } = useSpace()
 
   const {
     name,
@@ -22,14 +35,34 @@ export function NEO({ data }: { data: NEOProps }) {
       perihelion_argument,
       mean_anomaly,
       orbital_period,
+      orbit_class: { orbit_class_description, orbit_class_range },
+    },
+    estimated_diameter: {
+      kilometers: { estimated_diameter_max },
     },
     is_potentially_hazardous_asteroid,
   } = data
+
+  const estimatedRadius = useMemo(
+    () => estimated_diameter_max / 200,
+    [estimated_diameter_max]
+  )
+
+  const realRadiusKilometers = useMemo(
+    () => estimated_diameter_max / 2,
+    [estimated_diameter_max]
+  )
+
+  const thisfocusedBody = useMemo(
+    () => focusedBody?.data.name === name,
+    [focusedBody, name]
+  )
 
   const semiMajorAxis = useMemo(
     () => parseFloat(semi_major_axis),
     [semi_major_axis]
   )
+
   const e = useMemo(() => parseFloat(eccentricity), [eccentricity])
   const i = useMemo(() => parseFloat(inclination), [inclination])
   const Ω = useMemo(
@@ -134,12 +167,59 @@ export function NEO({ data }: { data: NEOProps }) {
     })
   }, [is_potentially_hazardous_asteroid])
 
-  const textMaterial = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#ffffff' }),
+  const sphereGeometry = useMemo(
+    () => new THREE.SphereGeometry(estimatedRadius, 8, 8),
     []
   )
 
-  const sphereGeometry = useMemo(() => new THREE.SphereGeometry(0.1, 8, 8), [])
+  const textMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#ffffff',
+        emissive: '#ffffff',
+        emissiveIntensity: 0.2,
+        transparent: true,
+      }),
+    []
+  )
+
+  const handleBodyClick = useCallback(() => {
+    const data = {
+      name,
+      type: is_potentially_hazardous_asteroid ? 'PHA' : 'NEO',
+      description: `Orbit description: ${orbit_class_description} (${orbit_class_range})`,
+      radius: estimatedRadius,
+      realRadius: `${realRadiusKilometers} km`,
+      volume: `${(4 / 3) * Math.PI * Math.pow(realRadiusKilometers, 3)} km³`,
+      surface: `${4 * Math.PI * Math.pow(realRadiusKilometers, 2)} km²`,
+      diameter: `${estimated_diameter_max} km`,
+      averageDistanceOfSun: `${semiMajorAxis * 149597870.7} km`,
+    } as NEOType
+    if (groupOpacity.current > 0.05) {
+      setFocusedBody({
+        data,
+        ref: neoGroupRef,
+      })
+    }
+  }, [setFocusedBody, data])
+
+  const handlePointerMove = useCallback(() => {
+    if (groupOpacity.current > 0.05) {
+      document.body.style.cursor = 'pointer'
+    }
+  }, [])
+
+  const handlePointerOut = useCallback(() => {
+    document.body.style.cursor = 'auto'
+  }, [])
+
+  const AnimatedText = useMemo(() => animated(Text), [Text])
+
+  const [{ textFontSize }, api] = useSpring(() => ({
+    textOpacity: 0,
+    textFontSize: 0,
+    config: { mass: 0, tension: 0, friction: 0 },
+  }))
 
   useFrame(({ clock }, delta) => {
     if (!AU) {
@@ -200,49 +280,133 @@ export function NEO({ data }: { data: NEOProps }) {
       (-sinΩ * sinω + cosΩ * cosω * cosi) * yOrbital
     const z = sinω * sini * xOrbital + cosω * sini * yOrbital
 
-    if (neoRef.current) {
-      neoRef.current.position.set(x * AU, y * AU, z * AU)
-      neoRef.current.rotateOnAxis(rotationAxisVector, delta)
-    }
+    if (neoGroupRef.current) {
+      neoGroupRef.current.position.set(x * AU, y * AU, z * AU)
 
-    if (textRef.current) {
-      textRef.current.position.set(x * AU, y * AU + 0.2, z * AU)
+      if (neoRef.current) {
+        neoRef.current.rotateOnAxis(rotationAxisVector, delta)
+      }
+
+      const cameraDistance = camera.position.length()
+      const minCameraDistance = 0.005
+      const maxCameraDistance = 1000
+
+      const minFontSize = 1.5
+      const maxFontSize = 20
+      let fontSize = minFontSize
+
+      if (
+        cameraDistance > minCameraDistance &&
+        cameraDistance < maxCameraDistance
+      ) {
+        fontSize = THREE.MathUtils.clamp(
+          minFontSize +
+            ((cameraDistance - minCameraDistance) /
+              (maxCameraDistance - minCameraDistance)) *
+              (maxFontSize - minFontSize),
+          minFontSize,
+          maxFontSize
+        )
+      } else if (cameraDistance >= maxCameraDistance) {
+        fontSize = maxFontSize
+      }
+
+      api.start({
+        textFontSize: fontSize,
+      })
+
+      const planetPos = neoGroupRef.current.position
+      const direction = planetPos.clone().normalize()
+      const labelOffset = estimatedRadius + fontSize + 3
+
+      if (labelRef.current) {
+        labelRef.current.position.copy(direction.multiplyScalar(labelOffset))
+      }
+
       const cameraPosition = camera.position
-      textRef.current.lookAt(cameraPosition)
+      const distance = cameraPosition.distanceTo(planetPos)
+
+      const minDistance = semiMajorAxis * AU * 4
+      const maxDistance = semiMajorAxis * AU * 10
+
+      let newOpacity = 1
+      if (distance > minDistance) {
+        newOpacity = THREE.MathUtils.clamp(
+          1 - (distance - minDistance) / (maxDistance - minDistance),
+          0,
+          1
+        )
+      }
+
+      groupOpacity.current = newOpacity
+
+      if (groupRef.current) {
+        groupRef.current.traverse(child => {
+          if (child instanceof THREE.Mesh) {
+            child.material.opacity = THREE.MathUtils.lerp(
+              child.material.opacity,
+              newOpacity,
+              0.1
+            )
+            if (child.name === 'label') {
+              child.material.opacity = THREE.MathUtils.lerp(
+                Math.min(child.material.opacity, 0.2),
+                newOpacity,
+                0.1
+              )
+            }
+            if (child.type === 'Line2') {
+              child.material.opacity = Math.min(child.material.opacity, 0.05)
+            }
+            child.material.transparent = true
+          }
+        })
+
+        groupRef.current.visible = newOpacity > 0.05
+      }
     }
   })
 
+  if (!showNEOs) return null
   return (
-    <>
+    <group ref={groupRef}>
       {showNEOsOrbits && (
         <Line
           points={orbitPoints}
           color={is_potentially_hazardous_asteroid ? 'red' : 'cyan'}
-          lineWidth={0.2}
+          lineWidth={1}
           transparent
-          opacity={0.6}
         />
       )}
 
-      <mesh
-        ref={neoRef}
-        castShadow
-        receiveShadow
-        geometry={sphereGeometry}
-        material={neoMaterial}
-      />
+      <group
+        ref={neoGroupRef}
+        onClick={handleBodyClick}
+        onPointerMove={handlePointerMove}
+        onPointerOut={handlePointerOut}>
+        <mesh
+          ref={neoRef}
+          castShadow
+          receiveShadow
+          geometry={sphereGeometry}
+          material={neoMaterial}
+        />
 
-      {showNEOsLabels && (
-        <Text
-          ref={textRef}
-          fontSize={0.1}
-          color='white'
-          anchorX='center'
-          anchorY='middle'
-          material={textMaterial}>
-          {name}
-        </Text>
-      )}
-    </>
+        {showNEOsLabels && !thisfocusedBody && (
+          <Billboard>
+            <AnimatedText
+              ref={labelRef}
+              name={'label'}
+              position={[0, 0, 0]}
+              fontSize={textFontSize}
+              anchorX='center'
+              anchorY='middle'
+              material={textMaterial}>
+              {name}
+            </AnimatedText>
+          </Billboard>
+        )}
+      </group>
+    </group>
   )
 }

@@ -1,15 +1,12 @@
-import React from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Sun } from './components/Sun'
 import { Planets } from './components/Planets'
-import Starfield from './components/Starfield'
+import Oort from './components/Oort'
 import UIControls from './components/UIControls'
-import SpeedControl from './components/SpeedControl'
 import { NEOs } from './components/NEOs'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { CameraController } from './components/CameraController'
-import { PlanetDetails } from './components/PlanetDetails'
-import CameraControls from './components/CameraControls'
+import { BodyDetails } from './components/BodyDetails'
 import { Icon } from './components/Icon'
 import { useNEOs } from './hooks/useNEOs'
 import { Suspense } from 'react'
@@ -21,14 +18,14 @@ function App() {
     <>
       <Icon />
       <Canvas
-        camera={{ position: [6, -65, 28], near: 0.1, far: 30000 }}
+        camera={{ position: [56, -342, 167], near: 0.1, far: 100000 }}
         dpr={[1, 2]}>
         <ambientLight intensity={1} />
         <pointLight position={[0, 0, 0]} intensity={2} />
 
         <CameraController />
 
-        <Starfield />
+        <Oort />
         <Suspense fallback={null}>
           <Planets />
         </Suspense>
@@ -42,10 +39,8 @@ function App() {
         </EffectComposer>
       </Canvas>
 
-      {/* <SpeedControl /> */}
       <UIControls />
-      {/* <CameraControls /> */}
-      <PlanetDetails />
+      <BodyDetails />
     </>
   )
 }

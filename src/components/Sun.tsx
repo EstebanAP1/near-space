@@ -12,16 +12,16 @@ export function Sun() {
   const labelRef = useRef<THREE.Mesh | null>(null)
 
   const { camera } = useThree()
-  const { focusedPlanet, setFocusedPlanet, showPlanetLabels } = useSpace()
+  const { focusedBody, setFocusedBody, showPlanetLabels } = useSpace()
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(...SUN.rotationAxis).normalize(),
     []
   )
 
-  const thisFocusedPlanet = useMemo(
-    () => focusedPlanet?.name === SUN.name,
-    [focusedPlanet, SUN.name]
+  const thisFocusedBody = useMemo(
+    () => focusedBody?.data?.name === SUN.name,
+    [focusedBody, SUN.name]
   )
 
   const meshBasicMaterial = useMemo(() => {
@@ -73,7 +73,7 @@ export function Sun() {
       const cameraPosition = camera.position
       const distance = cameraPosition.distanceTo(sunPosition)
 
-      const minMaterialDistance = 40
+      const minMaterialDistance = 200
 
       sunRef.current.material =
         distance <= minMaterialDistance
@@ -81,10 +81,10 @@ export function Sun() {
           : meshBasicMaterial
 
       const minCameraDistance = 10
-      const maxCameraDistance = 2500
+      const maxCameraDistance = 12000
 
       const minFontSize = 1.5
-      const maxFontSize = 150
+      const maxFontSize = 600
       let fontSize = minFontSize
 
       if (distance > minCameraDistance && distance < maxCameraDistance) {
@@ -113,11 +113,11 @@ export function Sun() {
   })
 
   const handleClick = useCallback(() => {
-    setFocusedPlanet({
-      ...SUN,
+    setFocusedBody({
+      data: SUN,
       ref: sunRef,
     })
-  }, [setFocusedPlanet, SUN])
+  }, [setFocusedBody, SUN])
 
   const handlePointerMove = useCallback(() => {
     document.body.style.cursor = 'pointer'
@@ -146,7 +146,7 @@ export function Sun() {
         shadow-mapSize-height={1024}
       />
 
-      {showPlanetLabels && !thisFocusedPlanet && (
+      {showPlanetLabels && !thisFocusedBody && (
         <Billboard>
           <AnimatedText
             ref={labelRef}

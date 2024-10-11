@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
   font-family: 'Nazalization';
   src:
@@ -8,19 +12,11 @@
   font-style: normal;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
 html,
 body,
 #root {
   width: 100dvw;
   height: 100dvh;
-  margin: 0;
-  padding: 0;
   user-select: none;
   overflow: hidden;
   font-family:
@@ -39,51 +35,10 @@ body,
 }
 
 body {
-  margin: 0;
   overflow: hidden;
   background: #000;
 }
 
-.ui-controls,
-.speed-control,
-.camera-controls {
-  position: absolute;
-  right: 10px;
-  background: rgba(50, 45, 187, 0.23);
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  border: 1px solid rgb(50, 45, 187, 0.3);
-  padding: 10px;
-  border-radius: 8px;
-  color: white;
-}
-
-.speed-control {
-  top: 100px;
-  max-width: 350px;
-}
-
-.ui-controls {
-  top: 10px;
-}
-
-.camera-controls {
-  top: 240px;
-}
-
-.ui-controls span {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 10px;
-}
-
-.ui-controls label,
 .speed-control label,
 .camera-controls label {
   display: block;
@@ -91,7 +46,6 @@ body {
   cursor: pointer;
 }
 
-.ui-controls input,
 .camera-controls input {
   margin-right: 5px;
 }
@@ -99,89 +53,6 @@ body {
 .speed-control input {
   width: 100%;
   margin-top: 5px;
-}
-
-.planet-details {
-  position: absolute;
-  scrollbar-width: thin;
-  top: 10px;
-  left: 10px;
-  max-height: 97dvh;
-  width: 30%;
-  padding: 1em 2.2em;
-  color: white;
-  min-width: 40vw;
-  background: rgba(50, 45, 187, 0.23);
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  border: 1px solid rgb(50, 45, 187, 0.3);
-  padding: 1em 2.2em;
-  border-radius: 8px;
-  color: white;
-  overflow-y: auto;
-}
-
-.planet-details .close-button {
-  background-color: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-.planet-details h2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 2.5em;
-  margin: 0;
-}
-.planet-details p span {
-  font-weight: 300;
-}
-.planet-details label {
-  font-size: 16px;
-  margin: 0;
-}
-.planet-details p {
-  font-size: 1em;
-  font-family: 'Raleway', sans-serif;
-  font-weight: 700;
-}
-.planet-details .description {
-  font-size: 1em;
-  font-weight: 300;
-  margin: 25px 0;
-  text-align: justify;
-}
-.planet-details .accordion {
-  padding: 25px 0;
-}
-.planet-details .accordion .subtitle {
-  font-size: 1.5em;
-  position: relative;
-  margin-top: 0;
-}
-.planet-details .accordion .subtitle:after {
-  content: '';
-  width: 55%;
-  background: #ffffff52;
-  height: 1px;
-  display: block;
-  position: absolute;
-  right: 0;
-  top: 50%;
-}
-.planet-details .close-button:hover {
-  color: rgba(255, 0, 0, 0.8); /* Change color on hover */
-}
-
-.planet-details header {
-  margin-top: 30px; /* Space between the button and header */
 }
 
 @media (max-width: 768px) {
@@ -200,7 +71,7 @@ body {
   position: absolute;
   top: 10px;
   left: 10px;
-  width: 80px;
+  width: 90px;
   height: 80px;
 }
 
