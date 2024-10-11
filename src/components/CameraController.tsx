@@ -23,7 +23,7 @@ export function CameraController() {
 
   const baseDistance = 25
   const minDefaultDistance = 10
-  const maxDefaultDistance = 50000
+  const maxDefaultDistance = 60000
 
   const minSelectedDistance = 0
   const maxSelectedDistance = 100
