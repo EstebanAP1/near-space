@@ -1,16 +1,16 @@
 # Near Space
 
-This is our project to participate in **NASA Space Challenger App**, a web-based application designed to allow users to explore space objects like Near-Earth Objects (NEOs) and planets in a 3D interactive environment. The app simulates celestial bodies' orbits and movements using Kepler's laws, offering an immersive experience in space exploration.
+This is our project to participate in the **NASA Space Challenger App**, a web-based application designed to allow users to explore space objects like Near-Earth Objects (NEOs) and planets in a 3D interactive environment. The app simulates celestial bodies' orbits and movements using Kepler's laws, offering an immersive experience in space exploration.
 
 ## Features
 
 - **3D Visualization of Space Objects**: The app leverages Three.js to render asteroids, planets, and other celestial objects in a 3D space, allowing users to observe their orbits and explore space interactively.
 - **Simulated Orbital Mechanics**: The orbits of planets and NEOs are simulated based on Kepler’s laws, providing an accurate yet simulated representation of how these objects move in space.
-- **Interactive Camera Control**: Users can toggle between `focus` (first-person view) and `orbit` modes to dynamically explore the environment from different perspectives.
+- **Interactive Camera Control**: Users can toggle between `Orbit` and `Ship` modes to dynamically explore the environment from different perspectives.
 
 ## Development Tools
 
-During the development of the NASA Space Challenger App, two powerful tools were instrumental in improving productivity:
+During the development of the Orrery, two powerful tools were instrumental in improving productivity:
 
 1. **Supermaven**:
    - **Supermaven** was used for code completion and suggestions throughout the development process. It helped streamline writing repetitive boilerplate code and accelerate coding efficiency by auto-completing complex patterns.
@@ -25,12 +25,16 @@ This project relies on the following specific versions of libraries:
 
 ```json
 "dependencies": {
-    "@react-three/drei": "9.114.0",
+    "@react-spring/three": "9.7.5",
+    "@react-three/drei": "9.114.3",
     "@react-three/fiber": "8.17.9",
     "@react-three/postprocessing": "2.16.3",
+    "@vercel/analytics": "^1.3.1",
+    "@vercel/speed-insights": "^1.0.12",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "three": "0.169.0",
+    "three": "0.163.0",
+    "three-stdlib": "2.33.0",
     "zustand": "5.0.0-rc.2"
 }
 ```
@@ -39,11 +43,15 @@ This project relies on the following specific versions of libraries:
 
 - **React** (`18.3.1`): The library for building the user interface.
 - **React-DOM** (`18.3.1`): For rendering React components in the DOM.
-- **Three.js** (`0.169.0`): The 3D engine used for rendering space objects and their environments.
+- **Three.js** (`0.163.0`): The 3D engine used for rendering space objects and their environments.
 - **React-Three-Fiber** (`8.17.9`): A React renderer for Three.js, facilitating easy integration of 3D elements within a React environment.
-- **React-Three-Drei** (`9.114.0`): A collection of useful helpers and abstractions for `react-three-fiber`.
+- **React-Three-Drei** (`9.114.3`): A collection of useful helpers and abstractions for `react-three-fiber`.
 - **React-Three-Postprocessing** (`2.16.3`): For adding post-processing effects such as bloom, SSAO, etc., to enhance the visual quality.
+- **@react-spring/three** (`9.7.5`): Enables smooth and physics-based animations within the Three.js environment using React Spring.
+- **three-stdlib** (`2.33.0`): A collection of standardized utilities and extensions for Three.js, providing additional functionalities and helpers.
 - **Zustand** (`5.0.0-rc.2`): A lightweight state management library used to handle the app’s global state, such as camera modes and selected objects.
+- **@vercel/analytics** (`^1.3.1`): Integrates Vercel's analytics to monitor and analyze application performance and user interactions.
+- **@vercel/speed-insights** (`^1.0.12`): Provides performance monitoring and insights, helping optimize the app's speed and responsiveness.
 
 ### Optional Development Tools
 
@@ -90,8 +98,8 @@ Users can switch between:
 
 ## Usage
 
-- In `orbit` mode, you can zoom in and out and pan around the objects.
-- In `ship` mode, you follow a space object from a first-person perspective, allowing you to experience its journey through space.
+- In `Orbit` mode, you can zoom in and out around the objects.
+- In `Ship` mode, you follow a space object from a first-person perspective, allowing you to experience its journey through space.
 
 ## Contributing
 
