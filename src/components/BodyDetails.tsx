@@ -28,7 +28,7 @@ export function BodyDetails() {
 
   return (
     <section
-      className={`${focusedBody ? 'flex' : 'hidden'} absolute left-3 top-3 max-h-[97dvh] w-1/3 min-w-[40dvw] flex-col overflow-y-auto rounded-lg border border-primary bg-primary px-6 py-9 text-white shadow-xl [-webkit-backdrop-filter:blur(5px)] [backdrop-filter:blur(5px)] [scrollbar-width:thin]`}>
+      className={`${focusedBody ? 'flex' : 'hidden'} absolute bottom-3 left-3 right-3 top-1/2 max-h-[97dvh] min-w-[40dvw] flex-col overflow-y-auto rounded-lg border border-primary bg-primary px-6 py-9 text-white shadow-xl [-webkit-backdrop-filter:blur(5px)] [backdrop-filter:blur(5px)] [scrollbar-width:thin] lg:bottom-auto lg:top-3 lg:w-1/3`}>
       <button
         className='absolute right-3 top-3 border-0 bg-transparent text-lg text-white hover:text-red-500'
         onClick={() => setFocusedBody(null)}>
