@@ -23,6 +23,7 @@ export function NEO({ data }: { data: NEOProps }) {
     AU,
     focusedBody,
     setFocusedBody,
+    camera: cameraType,
   } = useSpace()
 
   const {
@@ -184,6 +185,7 @@ export function NEO({ data }: { data: NEOProps }) {
   )
 
   const handleBodyClick = useCallback(() => {
+    if (cameraType === 'ship') return
     const data = {
       name,
       type: is_potentially_hazardous_asteroid ? 'PHA' : 'NEO',
@@ -201,17 +203,19 @@ export function NEO({ data }: { data: NEOProps }) {
         ref: neoGroupRef,
       })
     }
-  }, [setFocusedBody, data])
+  }, [setFocusedBody, data, cameraType])
 
   const handlePointerMove = useCallback(() => {
+    if (cameraType === 'ship') return
     if (groupOpacity.current > 0.05) {
       document.body.style.cursor = 'pointer'
     }
-  }, [])
+  }, [cameraType])
 
   const handlePointerOut = useCallback(() => {
+    if (cameraType === 'ship') return
     document.body.style.cursor = 'auto'
-  }, [])
+  }, [cameraType])
 
   const AnimatedText = useMemo(() => animated(Text), [Text])
 

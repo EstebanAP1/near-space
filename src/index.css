@@ -38,32 +38,3 @@ body {
   overflow: hidden;
   background: #000;
 }
-
-.speed-control label,
-.camera-controls label {
-  display: block;
-  margin-bottom: 5px;
-  cursor: pointer;
-}
-
-.camera-controls input {
-  margin-right: 5px;
-}
-
-.speed-control input {
-  width: 100%;
-  margin-top: 5px;
-}
-
-.icon {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 90px;
-  height: 80px;
-}
-
-.icon img {
-  width: 100%;
-  height: 100%;
-}

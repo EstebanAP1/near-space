@@ -23,12 +23,48 @@ export const useSpace = create<SpaceState>((set, get) => ({
 
   AU: 150,
 
+  focus: false,
+
   camera: 'orbit',
   setCamera: camera => set({ camera }),
 
   prevSpeedFactor: 0,
   speedFactor: 1,
-  setSpeedFactor: factor => set({ speedFactor: factor }),
+  increaseSpeed: () => {
+    if (get().speedFactor < 5) {
+      set(state => ({ speedFactor: state.speedFactor + 0.5 }))
+      return
+    }
+    if (get().speedFactor < 10) {
+      set(state => ({ speedFactor: state.speedFactor + 1 }))
+      return
+    }
+    if (get().speedFactor === 20) return
+
+    set(state => ({ speedFactor: state.speedFactor + 2 }))
+  },
+  decreaseSpeed: () => {
+    if (get().speedFactor > 5 && get().speedFactor <= 10) {
+      set(state => ({ speedFactor: state.speedFactor - 1 }))
+      return
+    }
+    if (get().speedFactor > 10) {
+      set(state => ({ speedFactor: state.speedFactor - 2 }))
+      return
+    }
+    if (get().speedFactor === 1) return
+
+    set(state => ({ speedFactor: state.speedFactor - 0.5 }))
+  },
+
+  shipSpeed: 100,
+  increseShipSpeed: () => {
+    set(state => ({ shipSpeed: state.shipSpeed + 10 }))
+  },
+  decreaseShipSpeed: () => {
+    if (get().shipSpeed === 50) return
+    set(state => ({ shipSpeed: state.shipSpeed - 10 }))
+  },
 
   showPlanetLabels: true,
   togglePlanetLabels: () =>

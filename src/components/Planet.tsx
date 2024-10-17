@@ -25,6 +25,7 @@ export function Planet(planetData: PlanetInterface) {
     showDwarfLabels,
     showDwarfOrbits,
     AU,
+    camera: cameraType,
   } = useSpace()
 
   const {
@@ -192,24 +193,40 @@ export function Planet(planetData: PlanetInterface) {
     return points
   }, [AU, orbitType, updatedElementsRad])
 
-  const mediumDetailMaterial = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
+  const mediumDetailMesh = useMemo(() => {
+    const material = new THREE.MeshBasicMaterial({
       color: orbitColor,
       transparent: true,
       opacity: 1,
     })
-  }, [orbitColor])
+    const initial = (semiMajorAxis * AU) / 20
+    const final = (semiMajorAxis * AU * 1.02) / 20
+    const ringGeometry = new THREE.RingGeometry(initial, final, 32)
 
-  const highDetailMaterial = useMemo(
-    () =>
-      texture
-        ? new THREE.MeshStandardMaterial({
-            map: texture,
-            transparent: true,
-            opacity: 1,
-          })
-        : mediumDetailMaterial,
-    [texture]
+    return new THREE.Mesh(ringGeometry, material)
+  }, [camera, orbitColor, semiMajorAxis, AU])
+
+  const highDetailMesh = useMemo(() => {
+    const material = texture
+      ? new THREE.MeshStandardMaterial({
+          map: texture,
+          transparent: true,
+          opacity: 1,
+        })
+      : new THREE.MeshBasicMaterial({
+          color: orbitColor,
+          transparent: true,
+          opacity: 1,
+        })
+
+    const geometry = new THREE.SphereGeometry(radius, 32, 32)
+
+    return new THREE.Mesh(geometry, material)
+  }, [texture])
+
+  const bodyMesh = useMemo(
+    () => (thisFocusedBody ? highDetailMesh : mediumDetailMesh),
+    [thisFocusedBody, highDetailMesh, mediumDetailMesh]
   )
 
   const textMaterial = useMemo(
@@ -223,7 +240,7 @@ export function Planet(planetData: PlanetInterface) {
     []
   )
 
-  const highDetailRingMaterial = useMemo(() => {
+  const ringMesh = useMemo(() => {
     if (!rings) return null
 
     const size = 512
@@ -255,98 +272,42 @@ export function Planet(planetData: PlanetInterface) {
     const texture = new THREE.CanvasTexture(canvas)
     texture.needsUpdate = true
 
-    return new THREE.MeshStandardMaterial({
+    const material = new THREE.MeshStandardMaterial({
       map: texture,
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.8,
     })
-  }, [rings])
-
-  const mediumDetailRingMaterial = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
-      color: orbitColor,
-      transparent: true,
-      opacity: 1,
-    })
-  }, [orbitColor])
-
-  const planetLOD = useMemo(() => {
-    const lod = new THREE.LOD()
-
-    const highDetailGeometry = new THREE.SphereGeometry(radius, 32, 32)
-    const highDetailMesh = new THREE.Mesh(
-      highDetailGeometry,
-      highDetailMaterial
-    )
-    lod.addLevel(highDetailMesh, 0)
-
-    const mediumDetailGeometry = new THREE.SphereGeometry(radius, 16, 16)
-    const mediumDetailMesh = new THREE.Mesh(
-      mediumDetailGeometry,
-      mediumDetailMaterial
-    )
-    lod.addLevel(mediumDetailMesh, semiMajorAxis * AU * 1.0)
-
-    return lod
-  }, [radius, highDetailMaterial, mediumDetailMaterial, semiMajorAxis, AU])
-
-  const ringLod = useMemo(() => {
-    if (!rings) return null
-    const lod = new THREE.LOD()
-
-    const highDetailRingGeometry = new THREE.RingGeometry(
+    const geometry = new THREE.RingGeometry(
       rings.innerRadius,
       rings.outerRadius,
       64
     ).rotateX(Math.PI / 2)
-    if (highDetailRingMaterial) {
-      const highDetailRing = new THREE.Mesh(
-        highDetailRingGeometry,
-        highDetailRingMaterial
-      )
-      lod.addLevel(highDetailRing, 0)
-    }
 
-    const mediumDetailRingGeometry = new THREE.RingGeometry(
-      rings.innerRadius,
-      rings.outerRadius,
-      32
-    ).rotateX(Math.PI / 2)
-    const mediumDetailRing = new THREE.Mesh(
-      mediumDetailRingGeometry,
-      mediumDetailRingMaterial
-    )
-
-    lod.addLevel(mediumDetailRing, semiMajorAxis * AU * 1.0)
-
-    return lod
-  }, [
-    rings,
-    highDetailRingMaterial,
-    mediumDetailRingMaterial,
-    semiMajorAxis,
-    AU,
-  ])
+    return new THREE.Mesh(geometry, material)
+  }, [rings])
 
   const handleBodyClick = useCallback(() => {
+    if (cameraType === 'ship') return
     if (keplerElementsRef.current.opacity > 0.05) {
       setFocusedBody({
         data: planetData,
         ref: planetGroupRef,
       })
     }
-  }, [setFocusedBody, planetData])
+  }, [setFocusedBody, planetData, cameraType])
 
   const handlePointerMove = useCallback(() => {
+    if (cameraType === 'ship') return
     if (keplerElementsRef.current.opacity > 0.05) {
       document.body.style.cursor = 'pointer'
     }
-  }, [])
+  }, [cameraType])
 
   const handlePointerOut = useCallback(() => {
+    if (cameraType === 'ship') return
     document.body.style.cursor = 'auto'
-  }, [])
+  }, [cameraType])
 
   const AnimatedText = useMemo(() => animated(Text), [Text])
 
@@ -452,8 +413,6 @@ export function Planet(planetData: PlanetInterface) {
     if (planetGroupRef.current) {
       planetGroupRef.current.position.set(x * AU, y * AU, z * AU)
 
-      planetLOD.update(camera)
-
       const orbitalEuler = new THREE.Euler(
         updatedRad.iRad,
         updatedRad.ORad,
@@ -473,11 +432,13 @@ export function Planet(planetData: PlanetInterface) {
           rotatedRotationAxis,
           rotationSpeed * delta
         )
+
+        if (!thisFocusedBody) {
+          planetRef.current.lookAt(camera.position)
+        }
       }
 
-      if (rings && ringLod) {
-        ringLod.update(camera)
-
+      if (rings) {
         if (ringRef.current) {
           ringRef.current.rotateOnAxis(
             new THREE.Vector3(...rings.rotationAxis).normalize(),
@@ -516,7 +477,7 @@ export function Planet(planetData: PlanetInterface) {
 
       const planetPos = planetGroupRef.current.position
       const direction = planetPos.clone().normalize()
-      const labelOffset = radius + fontSize + 3
+      const labelOffset = (semiMajorAxis * AU) / 20
 
       if (labelRef.current) {
         labelRef.current.position.copy(direction.multiplyScalar(labelOffset))
@@ -583,18 +544,18 @@ export function Planet(planetData: PlanetInterface) {
           onClick={handleBodyClick}
           onPointerMove={handlePointerMove}
           onPointerOut={handlePointerOut}>
-          {planetLOD && (
+          {bodyMesh && (
             <primitive
-              object={planetLOD}
+              object={bodyMesh}
               ref={planetRef}
               castShadow
               receiveShadow
             />
           )}
 
-          {rings && ringLod && (
+          {rings && ringMesh && thisFocusedBody && (
             <primitive
-              object={ringLod}
+              object={ringMesh}
               ref={ringRef}
               castShadow
               receiveShadow

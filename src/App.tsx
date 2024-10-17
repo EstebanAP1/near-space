@@ -2,14 +2,13 @@ import { Canvas } from '@react-three/fiber'
 import { Sun } from './components/Sun'
 import { Planets } from './components/Planets'
 import Oort from './components/Oort'
-import UIControls from './components/UIControls'
 import { NEOs } from './components/NEOs'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { CameraController } from './components/CameraController'
-import { BodyDetails } from './components/BodyDetails'
 import { Icon } from './components/Icon'
 import { useNEOs } from './hooks/useNEOs'
 import { Suspense } from 'react'
+import { UI } from './components/UI'
 
 function App() {
   useNEOs()
@@ -39,8 +38,7 @@ function App() {
         </EffectComposer>
       </Canvas>
 
-      <UIControls />
-      <BodyDetails />
+      <UI />
     </>
   )
 }

@@ -55,9 +55,14 @@ export interface SpaceState {
   AU: number
   camera: CameraType
   setCamera: (camera: CameraType) => void
+  focus: boolean
   prevSpeedFactor: number
   speedFactor: number
-  setSpeedFactor: (factor: number) => void
+  increaseSpeed: () => void
+  decreaseSpeed: () => void
+  shipSpeed: number
+  increseShipSpeed: () => void
+  decreaseShipSpeed: () => void
   showPlanetLabels: boolean
   togglePlanetLabels: () => void
   showPlanetOrbits: boolean

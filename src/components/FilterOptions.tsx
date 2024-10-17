@@ -1,6 +1,6 @@
 import { useSpace } from '../hooks/useSpace'
 
-function UIControls() {
+export function FilterOptions() {
   const {
     showPlanetLabels,
     togglePlanetLabels,
@@ -21,7 +21,7 @@ function UIControls() {
   } = useSpace()
 
   return (
-    <div className='border-primary bg-primary absolute right-3 top-3 flex flex-col gap-1 rounded-lg border p-3 text-white shadow-xl'>
+    <div className='flex flex-col gap-1 rounded-lg border border-primary bg-primary p-3 text-white shadow-xl backdrop-blur'>
       <span className='w-full text-center text-lg font-medium'>Show/hide</span>
       <label className='flex w-full gap-1'>
         <input
@@ -82,5 +82,3 @@ function UIControls() {
     </div>
   )
 }
-
-export default UIControls

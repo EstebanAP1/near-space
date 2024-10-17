@@ -12,7 +12,12 @@ export function Sun() {
   const labelRef = useRef<THREE.Mesh | null>(null)
 
   const { camera } = useThree()
-  const { focusedBody, setFocusedBody, showPlanetLabels } = useSpace()
+  const {
+    focusedBody,
+    setFocusedBody,
+    showPlanetLabels,
+    camera: cameraType,
+  } = useSpace()
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(...SUN.rotationAxis).normalize(),
@@ -32,7 +37,7 @@ export function Sun() {
     })
   }, [SUN])
 
-  const MeshStandardMaterial = useMemo(() => {
+  const meshStandardMaterial = useMemo(() => {
     return new THREE.MeshStandardMaterial({
       map: SUN.texture,
       emissive: SUN.color,
@@ -42,6 +47,11 @@ export function Sun() {
     })
   }, [SUN])
 
+  const meshMaterial = useMemo(
+    () => (thisFocusedBody ? meshStandardMaterial : meshBasicMaterial),
+    [thisFocusedBody, meshBasicMaterial, meshStandardMaterial]
+  )
+
   const textMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
@@ -49,7 +59,6 @@ export function Sun() {
         emissive: '#ffffff',
         emissiveIntensity: 0.2,
         transparent: true,
-        depthTest: false,
       }),
     []
   )
@@ -73,14 +82,7 @@ export function Sun() {
       const cameraPosition = camera.position
       const distance = cameraPosition.distanceTo(sunPosition)
 
-      const minMaterialDistance = 200
-
-      sunRef.current.material =
-        distance <= minMaterialDistance
-          ? MeshStandardMaterial
-          : meshBasicMaterial
-
-      const minCameraDistance = 10
+      const minCameraDistance = 30
       const maxCameraDistance = 12000
 
       const minFontSize = 1.5
@@ -113,19 +115,22 @@ export function Sun() {
   })
 
   const handleClick = useCallback(() => {
+    if (cameraType === 'ship') return
     setFocusedBody({
       data: SUN,
       ref: sunRef,
     })
-  }, [setFocusedBody, SUN])
+  }, [setFocusedBody, SUN, cameraType])
 
   const handlePointerMove = useCallback(() => {
+    if (cameraType === 'ship') return
     document.body.style.cursor = 'pointer'
-  }, [])
+  }, [cameraType])
 
   const handlePointerOut = useCallback(() => {
+    if (cameraType === 'ship') return
     document.body.style.cursor = 'auto'
-  }, [])
+  }, [cameraType])
 
   return (
     <group
@@ -134,7 +139,7 @@ export function Sun() {
       onPointerOut={handlePointerOut}>
       <mesh ref={sunRef} position={[0, 0, 0]} castShadow>
         <sphereGeometry args={[SUN.radius, 32, 32]} />
-        <primitive object={meshBasicMaterial} attach='material' />
+        <primitive object={meshMaterial} attach='material' />
       </mesh>
 
       <pointLight
