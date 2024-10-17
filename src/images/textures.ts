@@ -9,8 +9,7 @@ import {
   neptune,
   saturn,
   uranus,
-  venus,
-  star,
+  venus,  
 } from './images'
 
 import { NearestFilter, RepeatWrapping, TextureLoader } from 'three'
@@ -29,8 +28,7 @@ const textures: Textures = {
   neptuneTexture: textureLoader.load(neptune),
   saturnTexture: textureLoader.load(saturn),
   uranusTexture: textureLoader.load(uranus),
-  venusTexture: textureLoader.load(venus),
-  starTexture: textureLoader.load(star),
+  venusTexture: textureLoader.load(venus),  
 }
 
 // Función para configurar las texturas
@@ -54,6 +52,5 @@ export const {
   neptuneTexture,
   saturnTexture,
   uranusTexture,
-  venusTexture,
-  starTexture,
+  venusTexture,  
 } = loadTextures(textures)
