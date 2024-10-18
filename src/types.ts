@@ -10,8 +10,7 @@ export interface Textures {
   neptuneTexture: Texture
   saturnTexture: Texture
   uranusTexture: Texture
-  venusTexture: Texture
-  starTexture: Texture
+  venusTexture: Texture  
 }
 
 type CameraType = 'orbit' | 'ship'
