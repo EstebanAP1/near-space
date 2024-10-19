@@ -1,4 +1,9 @@
-export function solveKepler(M, e, tolerance = 1e-6, maxIterations = 100) {
+export function solveKepler(
+  M: number,
+  e: number,
+  tolerance = 1e-6,
+  maxIterations = 100
+) {
   let E
   let delta
   let iterations = 0

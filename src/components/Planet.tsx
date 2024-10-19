@@ -222,7 +222,7 @@ export function Planet(planetData: PlanetInterface) {
     const geometry = new THREE.SphereGeometry(radius, 32, 32)
 
     return new THREE.Mesh(geometry, material)
-  }, [texture])
+  }, [texture, orbitColor])
 
   const bodyMesh = useMemo(
     () => (thisFocusedBody ? highDetailMesh : mediumDetailMesh),

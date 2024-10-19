@@ -51,7 +51,7 @@ export function CameraController() {
   const isCameraStored = useRef(false)
 
   const baseDistance = 25
-  const minDefaultDistance = 20
+  const minDefaultDistance = 50
   const maxDefaultDistance = 60000
 
   const minSelectedDistance = 0
@@ -71,18 +71,15 @@ export function CameraController() {
           isCameraStored.current = true
         }
 
-        const planetPosition = focusedBody.ref.current.position.clone()
-
         const radius = focusedBody.data.radius || 1
-        let calculatedDistance = baseDistance * Math.log(radius)
+        let calculatedDistance = baseDistance * radius
 
-        calculatedDistance = Math.max(
-          minDefaultDistance,
-          Math.min(calculatedDistance, maxSelectedDistance)
-        )
-
-        const direction = new Vector3(0, -5, 10).normalize()
+        const direction = new Vector3(0, 2, -10).normalize()
         const adjustedOffset = direction.multiplyScalar(calculatedDistance)
+
+        const planetPosition = focusedBody.ref.current.position.clone()
+        const planetPositionOffset = new Vector3(radius, 0, 0)
+        planetPosition.add(planetPositionOffset)
 
         const desiredCameraPosition = planetPosition.clone().add(adjustedOffset)
 

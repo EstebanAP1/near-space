@@ -1,10 +1,11 @@
 import { useSpace } from '../hooks/useSpace'
 
 export function SpeedOptions() {
-  const { speedFactor, camera } = useSpace()
+  const { speedFactor, camera, focusedBody } = useSpace()
   const increaseSpeed = useSpace(state => state.increaseSpeed)
   const decreaseSpeed = useSpace(state => state.decreaseSpeed)
 
+  if (focusedBody) return null
   return (
     <div className='absolute bottom-5 flex w-full flex-col items-center justify-center gap-1 text-white'>
       <p className='font sm:text-xl'>Simulation Speed</p>
