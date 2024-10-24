@@ -10,7 +10,7 @@ export interface Textures {
   neptuneTexture: Texture
   saturnTexture: Texture
   uranusTexture: Texture
-  venusTexture: Texture  
+  venusTexture: Texture
 }
 
 type CameraType = 'orbit' | 'ship'
@@ -62,24 +62,37 @@ export interface SpaceState {
   shipSpeed: number
   increseShipSpeed: () => void
   decreaseShipSpeed: () => void
-  showPlanetLabels: boolean
-  togglePlanetLabels: () => void
-  showPlanetOrbits: boolean
-  togglePlanetOrbits: () => void
-  showDwarf: boolean
-  toggleDwarf: () => void
-  showDwarfLabels: boolean
-  toggleDwarfLabels: () => void
-  showDwarfOrbits: boolean
-  toggleDwarfOrbits: () => void
-  showNEOs: boolean
-  toggleNEOs: () => void
-  showNEOsOrbits: boolean
-  toggleNEOsOrbits: () => void
-  showNEOsLabels: boolean
-  toggleNEOsLabels: () => void
   neos: NEOData[]
   setNEOs: (neos: NEOData[]) => void
+}
+
+export interface FilterState {
+  planet: {
+    showLabel: boolean
+    toggleLabel: () => void
+    showOrbit: boolean
+    toggleOrbit: () => void
+  }
+  neo: {
+    show: boolean
+    toggle: () => void
+    showLabel: boolean
+    toggleLabel: () => void
+    showOrbit: boolean
+    toggleOrbit: () => void
+    pha: {
+      show: boolean
+      toggle: () => void
+    }
+  }
+  dwarf: {
+    show: boolean
+    toggle: () => void
+    showLabel: boolean
+    toggleLabel: () => void
+    showOrbit: boolean
+    toggleOrbit: () => void
+  }
 }
 
 // Elementos de Kepler

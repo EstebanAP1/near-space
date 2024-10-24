@@ -1,4 +1,4 @@
-import { useSpace } from '../hooks/useSpace'
+import { useSpace } from '@hooks/useSpace'
 
 export function SpeedOptions() {
   const { speedFactor, camera, focusedBody } = useSpace()
@@ -14,7 +14,7 @@ export function SpeedOptions() {
           <button
             onClick={decreaseSpeed}
             aria-label='Decrease simulation speed'
-            className='size-10 bg-primary text-3xl shadow-xl'>
+            className='size-10 bg-primary/15 text-3xl shadow-xl'>
             -
           </button>
         )}
@@ -25,7 +25,7 @@ export function SpeedOptions() {
           <button
             onClick={increaseSpeed}
             aria-label='Increase simulation speed'
-            className='size-10 bg-primary text-3xl shadow-xl'>
+            className='size-10 bg-primary/15 text-3xl shadow-xl'>
             +
           </button>
         )}

@@ -1,4 +1,4 @@
-import { Textures } from '../types'
+import { Textures } from '@/types'
 import {
   earth,
   sun,
@@ -9,8 +9,8 @@ import {
   neptune,
   saturn,
   uranus,
-  venus,  
-} from './images'
+  venus,
+} from '@images/images'
 
 import { NearestFilter, RepeatWrapping, TextureLoader } from 'three'
 
@@ -28,7 +28,7 @@ const textures: Textures = {
   neptuneTexture: textureLoader.load(neptune),
   saturnTexture: textureLoader.load(saturn),
   uranusTexture: textureLoader.load(uranus),
-  venusTexture: textureLoader.load(venus),  
+  venusTexture: textureLoader.load(venus),
 }
 
 // Función para configurar las texturas
@@ -52,5 +52,5 @@ export const {
   neptuneTexture,
   saturnTexture,
   uranusTexture,
-  venusTexture,  
+  venusTexture,
 } = loadTextures(textures)

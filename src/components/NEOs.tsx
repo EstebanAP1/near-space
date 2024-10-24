@@ -1,5 +1,5 @@
-import { useSpace } from '../hooks/useSpace'
-import { NEO } from './NEO'
+import { useSpace } from '@hooks/useSpace'
+import { NEO } from '@components/NEO'
 
 export function NEOs() {
   const neos = useSpace(state => state.neos)

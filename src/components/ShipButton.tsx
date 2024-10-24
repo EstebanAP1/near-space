@@ -1,4 +1,4 @@
-import { useSpace } from '../hooks/useSpace'
+import { useSpace } from '@hooks/useSpace'
 
 export function ShipButton() {
   const { setCamera, focusedBody } = useSpace()
@@ -7,13 +7,13 @@ export function ShipButton() {
 
   return (
     <button
-      className='rounded-xl border border-primary bg-primary p-3 text-white backdrop-blur'
+      className='max-h-fit rounded-full bg-white px-4 py-2 text-sm text-black max-sm:hidden'
       onClick={() => {
         setCamera('ship')
         useSpace.setState({ focus: true })
         document.body.style.cursor = 'crosshair'
       }}>
-      Switch to ship
+      Switch to the ship
     </button>
   )
 }

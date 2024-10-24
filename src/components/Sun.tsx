@@ -1,23 +1,21 @@
 import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { SUN } from '../data/sun'
-import { useSpace } from '../hooks/useSpace'
+import { SUN } from '@data/sun'
+import { useSpace } from '@hooks/useSpace'
 import { useCallback } from 'react'
 import { animated, useSpring } from '@react-spring/three'
 import { Billboard, Text } from '@react-three/drei'
+import { useFilters } from '@hooks/useFilters'
 
 export function Sun() {
   const sunRef = useRef<THREE.Mesh | null>(null)
   const labelRef = useRef<THREE.Mesh | null>(null)
 
   const { camera } = useThree()
-  const {
-    focusedBody,
-    setFocusedBody,
-    showPlanetLabels,
-    camera: cameraType,
-  } = useSpace()
+  const { focusedBody, setFocusedBody, camera: cameraType } = useSpace()
+
+  const { planet } = useFilters()
 
   const rotationAxisVector = useMemo(
     () => new THREE.Vector3(...SUN.rotationAxis).normalize(),
@@ -151,7 +149,7 @@ export function Sun() {
         shadow-mapSize-height={1024}
       />
 
-      {showPlanetLabels && !thisFocusedBody && (
+      {planet.showLabel && !thisFocusedBody && (
         <Billboard>
           <AnimatedText
             ref={labelRef}

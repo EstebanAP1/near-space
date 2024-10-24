@@ -38,3 +38,29 @@ body {
   overflow: hidden;
   background: #000;
 }
+
+.custom-scrollbar {
+  --sb-track-color: #2b3c9d40;
+  --sb-thumb-color: #fdfdfd26;
+  --sb-size: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: var(--sb-size);
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 20px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .custom-scrollbar {
+    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+  }
+}

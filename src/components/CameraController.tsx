@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { FirstPersonControls, OrbitControls, useFBX } from '@react-three/drei'
 import { MathUtils, Quaternion, Vector3 } from 'three'
-import { useSpace } from '../hooks/useSpace'
+import { useSpace } from '@hooks/useSpace'
 import {
   OrbitControls as ThreeOrbitControls,
   FirstPersonControls as ThreeFirstPersonControls,
@@ -74,12 +74,10 @@ export function CameraController() {
         const radius = focusedBody.data.radius || 1
         let calculatedDistance = baseDistance * radius
 
-        const direction = new Vector3(0, 2, -10).normalize()
+        const direction = new Vector3(0, 2, 10).normalize()
         const adjustedOffset = direction.multiplyScalar(calculatedDistance)
 
         const planetPosition = focusedBody.ref.current.position.clone()
-        const planetPositionOffset = new Vector3(radius, 0, 0)
-        planetPosition.add(planetPositionOffset)
 
         const desiredCameraPosition = planetPosition.clone().add(adjustedOffset)
 

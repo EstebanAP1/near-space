@@ -5,7 +5,6 @@ import Oort from './components/Oort'
 import { NEOs } from './components/NEOs'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { CameraController } from './components/CameraController'
-import { Icon } from './components/Icon'
 import { useNEOs } from './hooks/useNEOs'
 import { Suspense } from 'react'
 import { UI } from './components/UI'
@@ -15,7 +14,6 @@ function App() {
 
   return (
     <>
-      <Icon />
       <Canvas
         camera={{ position: [56, -342, 167], near: 0.1, far: 100000 }}
         dpr={[1, 2]}>

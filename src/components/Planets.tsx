@@ -1,5 +1,5 @@
-import { Planet } from './Planet'
-import { ALL_PLANETS } from '../data/planets'
+import { Planet } from '@components/Planet'
+import { ALL_PLANETS } from '@data/planets'
 
 export function Planets() {
   return (

@@ -2,10 +2,11 @@ import { useRef, useMemo, useEffect, useCallback } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Billboard, Line, Text } from '@react-three/drei'
-import { useSpace } from '../hooks/useSpace'
-import { solveKepler } from '../utils/kepler'
-import { Planet as PlanetInterface } from '../types'
+import { useSpace } from '@hooks/useSpace'
+import { solveKepler } from '@utils/kepler'
+import { Planet as PlanetInterface } from '@/types'
 import { animated, useSpring } from '@react-spring/three'
+import { useFilters } from '@hooks/useFilters'
 
 export function Planet(planetData: PlanetInterface) {
   const groupRef = useRef<THREE.Group | null>(null)
@@ -19,14 +20,11 @@ export function Planet(planetData: PlanetInterface) {
     focusedBody,
     setFocusedBody,
     speedFactor,
-    showDwarf,
-    showPlanetLabels,
-    showPlanetOrbits,
-    showDwarfLabels,
-    showDwarfOrbits,
     AU,
     camera: cameraType,
   } = useSpace()
+
+  const { planet, dwarf } = useFilters()
 
   const {
     name,
@@ -53,12 +51,12 @@ export function Planet(planetData: PlanetInterface) {
   } = planetData
 
   const showLabels = useMemo(
-    () => (type === 'planet' ? showPlanetLabels : showDwarfLabels),
-    [type, showPlanetLabels, showDwarfLabels]
+    () => (type === 'planet' ? planet.showLabel : dwarf.showLabel),
+    [type, planet, dwarf]
   )
   const showOrbits = useMemo(
-    () => (type === 'planet' ? showPlanetOrbits : showDwarfOrbits),
-    [type, showPlanetOrbits, showDwarfOrbits]
+    () => (type === 'planet' ? planet.showOrbit : dwarf.showOrbit),
+    [type, planet, dwarf]
   )
 
   const thisFocusedBody = useMemo(
@@ -527,7 +525,7 @@ export function Planet(planetData: PlanetInterface) {
     }
   })
 
-  if (type === 'dwarf' && !showDwarf) return null
+  if (type === 'dwarf' && !dwarf.show) return null
   return (
     <>
       <group ref={groupRef}>

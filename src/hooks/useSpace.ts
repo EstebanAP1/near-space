@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { SpaceState } from '../types'
+import { SpaceState } from '@/types'
 
 export const useSpace = create<SpaceState>((set, get) => ({
   focusedBody: null,
@@ -65,36 +65,6 @@ export const useSpace = create<SpaceState>((set, get) => ({
     if (get().shipSpeed === 50) return
     set(state => ({ shipSpeed: state.shipSpeed - 10 }))
   },
-
-  showPlanetLabels: true,
-  togglePlanetLabels: () =>
-    set(state => ({ showPlanetLabels: !state.showPlanetLabels })),
-
-  showPlanetOrbits: true,
-  togglePlanetOrbits: () =>
-    set(state => ({ showPlanetOrbits: !state.showPlanetOrbits })),
-
-  showDwarf: true,
-  toggleDwarf: () => set(state => ({ showDwarf: !state.showDwarf })),
-
-  showDwarfLabels: true,
-  toggleDwarfLabels: () =>
-    set(state => ({ showDwarfLabels: !state.showDwarfLabels })),
-
-  showDwarfOrbits: true,
-  toggleDwarfOrbits: () =>
-    set(state => ({ showDwarfOrbits: !state.showDwarfOrbits })),
-
-  showNEOs: true,
-  toggleNEOs: () => set(state => ({ showNEOs: !state.showNEOs })),
-
-  showNEOsOrbits: false,
-  toggleNEOsOrbits: () =>
-    set(state => ({ showNEOsOrbits: !state.showNEOsOrbits })),
-
-  showNEOsLabels: false,
-  toggleNEOsLabels: () =>
-    set(state => ({ showNEOsLabels: !state.showNEOsLabels })),
 
   neos: [],
   setNEOs: neos => set({ neos }),

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useSpace } from '../hooks/useSpace'
+import { useSpace } from '@hooks/useSpace'
 
 export function ShipUI() {
   const {
@@ -71,9 +71,13 @@ export function ShipUI() {
             <p className='text-4xl'>Ship paused</p>
             <p className='text-2xl'>Press space to resume</p>
             <button
-              className='rounded-xl border border-primary bg-primary p-3 backdrop-blur'
-              onClick={() => setCamera('orbit')}>
-              Switch to orbit
+              className='max-h-fit rounded-full bg-white px-4 py-2 text-sm text-black max-sm:hidden'
+              onClick={() => {
+                setCamera('orbit')
+                useSpace.setState({ focus: false })
+                document.body.style.cursor = 'auto'
+              }}>
+              Switch to the ship
             </button>
           </div>
         </div>

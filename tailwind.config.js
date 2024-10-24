@@ -4,10 +4,13 @@ export default {
   theme: {
     extend: {
       borderColor: {
-        primary: 'rgb(50, 45, 187, 0.3)',
+        primary: '#2B3C9D',
       },
       backgroundColor: {
-        primary: 'rgb(50, 45, 187, 0.23)',
+        primary: '#2B3C9D',
+      },
+      fontFamily: {
+        nasa: ['"Nasalization"', 'system-ui', '-apple-system'],
       },
     },
   },

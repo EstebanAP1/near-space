@@ -1,11 +1,12 @@
 import { useRef, useMemo, useCallback } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { solveKepler } from '../utils/kepler'
-import { useSpace } from '../hooks/useSpace'
+import { solveKepler } from '@utils/kepler'
+import { useSpace } from '@hooks/useSpace'
 import { Billboard, Line, Text } from '@react-three/drei'
-import { NEO as NEOType, NEOProps } from '../types'
+import { NEO as NEOType, NEOProps } from '@/types'
 import { animated, useSpring } from '@react-spring/three'
+import { useFilters } from '@hooks/useFilters'
 
 export function NEO({ data }: { data: NEOProps }) {
   const { camera } = useThree()
@@ -17,14 +18,13 @@ export function NEO({ data }: { data: NEOProps }) {
 
   const {
     speedFactor,
-    showNEOs,
-    showNEOsLabels,
-    showNEOsOrbits,
     AU,
     focusedBody,
     setFocusedBody,
     camera: cameraType,
   } = useSpace()
+
+  const { neo } = useFilters()
 
   const {
     name,
@@ -371,10 +371,11 @@ export function NEO({ data }: { data: NEOProps }) {
     }
   })
 
-  if (!showNEOs) return null
+  if (!neo.show) return null
+  if (is_potentially_hazardous_asteroid && !neo.pha.show) return null
   return (
     <group ref={groupRef}>
-      {showNEOsOrbits && (
+      {neo.showOrbit && (
         <Line
           points={orbitPoints}
           color={is_potentially_hazardous_asteroid ? 'red' : 'cyan'}
@@ -396,7 +397,7 @@ export function NEO({ data }: { data: NEOProps }) {
           material={neoMaterial}
         />
 
-        {showNEOsLabels && !thisfocusedBody && (
+        {neo.showLabel && !thisfocusedBody && (
           <Billboard>
             <AnimatedText
               ref={labelRef}

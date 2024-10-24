@@ -1,5 +1,5 @@
-import { sunTexture } from '../images/textures'
-import { Sun } from '../types'
+import { sunTexture } from '@/images/textures'
+import { Sun } from '@/types'
 
 export const SUN: Sun = {
   name: 'Sun',

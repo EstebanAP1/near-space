@@ -7,8 +7,8 @@ import {
   saturnTexture,
   uranusTexture,
   venusTexture,
-} from '../images/textures'
-import { Planet, BodyDetail } from '../types'
+} from '@images/textures'
+import { Planet, BodyDetail } from '@/types'
 
 export const PLANETS: Planet[] = [
   {
