@@ -109,7 +109,7 @@ export function FilterOptions() {
                   <label key={option.label} className='flex items-center gap-3'>
                     <input
                       type='checkbox'
-                      className='accent-white max-sm:size-4'
+                      className='max-sm:size-4'
                       checked={option.checked}
                       onChange={option.onChange}
                     />
